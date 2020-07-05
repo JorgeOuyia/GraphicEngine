@@ -11,8 +11,6 @@ Here I post some results of the execution of the project:
 
 ![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/master/GameEngine/Results/multiplePointLights.PNG)
 
-![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/master/GameEngine/Results/spotLight.PNG)
-
 ![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/master/GameEngine/Results/aoi.PNG)
 
 ![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/master/GameEngine/Results/jonny.PNG)
