@@ -122,45 +122,12 @@ void Shader::initUniforms()
 	uniforms.viewLoc = glGetUniformLocation(program, "view");
 	uniforms.projLoc = glGetUniformLocation(program, "proj");
 	uniforms.eyePositionLoc = glGetUniformLocation(program, "eye");
-	uniforms.numPointLightsLoc = glGetUniformLocation(program, "numPointLights");
 
 	lightUniforms.colourLoc = glGetUniformLocation(program, "directionalLight.colour");
 	lightUniforms.ambientIntensityLoc = glGetUniformLocation(program, "directionalLight.ambientIntensity");
 	lightUniforms.directionLoc = glGetUniformLocation(program, "directionalLight.direction");
 	lightUniforms.diffuseIntensityLoc = glGetUniformLocation(program, "directionalLight.diffuseIntensity");
+
 	lightUniforms.specularIntensity = glGetUniformLocation(program, "specularLight.specularIntensity");
 	lightUniforms.specularPower = glGetUniformLocation(program, "specularLight.specularPower");
-
-	for (int i = 0; i < phongLight->getPointLights().size(); i++)
-	{
-		std::string location;
-
-		location.clear();
-		location.append("pointLights[" + std::to_string(i)); location.append("].colour");
-		pointLightUniforms[i].colourLoc = glGetUniformLocation(program, location.c_str());
-
-		location.clear();
-		location.append("pointLights[" + std::to_string(i)); location.append("].ambientIntensity");
-		pointLightUniforms[i].ambientIntensityLoc = glGetUniformLocation(program, location.c_str());
-
-		location.clear();
-		location.append("pointLights[" + std::to_string(i)); location.append("].diffuseIntensity");
-		pointLightUniforms[i].diffuseIntensityLoc = glGetUniformLocation(program, location.c_str());
-
-		location.clear();
-		location.append("pointLights[" + std::to_string(i)); location.append("].position");
-		pointLightUniforms[i].positionLoc = glGetUniformLocation(program, location.c_str());
-
-		location.clear();
-		location.append("pointLights[" + std::to_string(i)); location.append("].constant");
-		pointLightUniforms[i].constantLoc = glGetUniformLocation(program, location.c_str());
-
-		location.clear();
-		location.append("pointLights[" + std::to_string(i)); location.append("].linear");
-		pointLightUniforms[i].linearLoc = glGetUniformLocation(program, location.c_str());
-
-		location.clear();
-		location.append("pointLights[" + std::to_string(i)); location.append("].exp");
-		pointLightUniforms[i].expLoc = glGetUniformLocation(program, location.c_str());
-	}
 }

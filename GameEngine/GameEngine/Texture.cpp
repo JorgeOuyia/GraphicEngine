@@ -35,7 +35,7 @@ void Texture::init()
 	unsigned char* texData = readFile(fileLoc);
 	if (!texData)
 	{
-		printf("Error loading texture %s\n", fileLoc.c_str());
+		/*printf("Error loading texture %s\n", fileLoc.c_str());*/
 		return;
 	}
 
