@@ -1,20 +1,20 @@
 #include "Shader.h"
 
-Shader::Shader(std::string vertexLoc, std::string fragmentLoc, DirectionalLight directionalLight, SpecularLight specularLight) : program(0), vertexLoc(vertexLoc), fragmentLoc(fragmentLoc) 
+Shader::Shader(std::string vertexLoc, std::string fragmentLoc, DirectionalLight directionalLight, SpecularLight specularLight, SpotLight spotLight) : program(0), vertexLoc(vertexLoc), fragmentLoc(fragmentLoc) 
 {
 	uniforms.modelLoc = 0;
 	uniforms.viewLoc = 0;
 	uniforms.projLoc = 0;
 	uniforms.eyePositionLoc = 0;
 
-	lightUniforms.ambientIntensityLoc = 0;
-	lightUniforms.colourLoc = 0;
-	lightUniforms.directionLoc = 0;
-	lightUniforms.diffuseIntensityLoc = 0;
-	lightUniforms.specularIntensity = 0;
-	lightUniforms.specularPower = 0;
+	generalLightUniforms.ambientIntensityLoc = 0;
+	generalLightUniforms.colourLoc = 0;
+	generalLightUniforms.directionLoc = 0;
+	generalLightUniforms.diffuseIntensityLoc = 0;
+	generalLightUniforms.specularIntensity = 0;
+	generalLightUniforms.specularPower = 0;
 
-	phongLight = new PhongLight(directionalLight, specularLight);
+	phongLight = new PhongLight(directionalLight, specularLight, spotLight);
 	init();
 }
 
@@ -118,19 +118,33 @@ void Shader::attachShader(const char* shaderSource, GLenum shaderType)
 
 void Shader::initUniforms()
 {
+	initGeneralUniforms();
+	initGeneralLightUniforms();
+	initPointLightsUniforms();
+	initSpotLightUniforms();
+}
+
+void Shader::initGeneralUniforms()
+{
 	uniforms.modelLoc = glGetUniformLocation(program, "model");
 	uniforms.viewLoc = glGetUniformLocation(program, "view");
 	uniforms.projLoc = glGetUniformLocation(program, "proj");
 	uniforms.eyePositionLoc = glGetUniformLocation(program, "eye");
 	uniforms.numPointLightsLoc = glGetUniformLocation(program, "numPointLights");
+}
 
-	lightUniforms.colourLoc = glGetUniformLocation(program, "directionalLight.colour");
-	lightUniforms.ambientIntensityLoc = glGetUniformLocation(program, "directionalLight.ambientIntensity");
-	lightUniforms.directionLoc = glGetUniformLocation(program, "directionalLight.direction");
-	lightUniforms.diffuseIntensityLoc = glGetUniformLocation(program, "directionalLight.diffuseIntensity");
-	lightUniforms.specularIntensity = glGetUniformLocation(program, "specularLight.specularIntensity");
-	lightUniforms.specularPower = glGetUniformLocation(program, "specularLight.specularPower");
+void Shader::initGeneralLightUniforms()
+{
+	generalLightUniforms.colourLoc = glGetUniformLocation(program, "directionalLight.colour");
+	generalLightUniforms.ambientIntensityLoc = glGetUniformLocation(program, "directionalLight.ambientIntensity");
+	generalLightUniforms.directionLoc = glGetUniformLocation(program, "directionalLight.direction");
+	generalLightUniforms.diffuseIntensityLoc = glGetUniformLocation(program, "directionalLight.diffuseIntensity");
+	generalLightUniforms.specularIntensity = glGetUniformLocation(program, "specularLight.specularIntensity");
+	generalLightUniforms.specularPower = glGetUniformLocation(program, "specularLight.specularPower");
+}
 
+void Shader::initPointLightsUniforms()
+{
 	for (int i = 0; i < phongLight->getPointLights().size(); i++)
 	{
 		std::string location;
@@ -163,4 +177,17 @@ void Shader::initUniforms()
 		location.append("pointLights[" + std::to_string(i)); location.append("].exp");
 		pointLightUniforms[i].expLoc = glGetUniformLocation(program, location.c_str());
 	}
+}
+
+void Shader::initSpotLightUniforms()
+{
+	spotLightUniforms.colourLoc = glGetUniformLocation(program, "spotLight.colour");
+	spotLightUniforms.ambientIntensityLoc = glGetUniformLocation(program, "spotLight.ambientIntensity");
+	spotLightUniforms.diffuseIntensityLoc = glGetUniformLocation(program, "spotLight.diffuseIntensity");
+	spotLightUniforms.positionLoc = glGetUniformLocation(program, "spotLight.position");
+	spotLightUniforms.constantLoc = glGetUniformLocation(program, "spotLight.constant");
+	spotLightUniforms.linearLoc = glGetUniformLocation(program, "spotLight.linear");
+	spotLightUniforms.expLoc = glGetUniformLocation(program, "spotLight.exp");
+	spotLightUniforms.directionLoc = glGetUniformLocation(program, "spotLight.direction");
+	spotLightUniforms.cutOffLoc = glGetUniformLocation(program, "spotLight.cutOff");
 }

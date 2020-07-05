@@ -12,6 +12,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+struct BaseLightUniforms
+{
+	GLuint colourLoc;
+	GLuint ambientIntensityLoc;
+	GLuint diffuseIntensityLoc;
+};
+
 struct Uniform
 {
 	GLuint modelLoc;
@@ -21,25 +28,25 @@ struct Uniform
 	GLuint numPointLightsLoc;
 };
 
-struct LightUniforms
+struct GeneralLightUniforms : public BaseLightUniforms
 {
-	GLuint colourLoc;
-	GLuint ambientIntensityLoc;
 	GLuint directionLoc;
-	GLuint diffuseIntensityLoc;
 	GLuint specularIntensity;
 	GLuint specularPower;
 };
 
-struct PointLightUniforms
+struct PointLightUniforms : public BaseLightUniforms
 {
-	GLuint colourLoc;
-	GLuint ambientIntensityLoc;
-	GLuint diffuseIntensityLoc;
 	GLuint positionLoc;
 	GLuint constantLoc;
 	GLuint linearLoc;
 	GLuint expLoc;
+};
+
+struct SpotLightUniforms : public PointLightUniforms
+{
+	GLuint directionLoc;
+	GLuint cutOffLoc;
 };
 
 class Shader
@@ -47,7 +54,8 @@ class Shader
 public:
 	Shader(std::string vertexLoc, std::string fragmentLoc,
 		DirectionalLight directionalLight,
-		SpecularLight specularLight);
+		SpecularLight specularLight,
+		SpotLight spotLight);
 
 	inline void use() { glUseProgram(program); }
 	inline void unuse() { glUseProgram(0); }
@@ -55,7 +63,8 @@ public:
 	inline Uniform getUniforms() { return uniforms; }
 
 	inline PhongLight* getPhongLight() { return phongLight; }
-	inline LightUniforms getLightUniforms() { return lightUniforms; }
+	inline GeneralLightUniforms getGeneralLightUniforms() { return generalLightUniforms; }
+	inline SpotLightUniforms getSpotLightUniforms() { return spotLightUniforms; }
 	inline std::vector<PointLightUniforms> getPointLightUniforms() { return pointLightUniforms; }
 
 	inline void addPointLight(const PointLight& pointLight) { phongLight->addPointLight(pointLight); pointLightUniforms.push_back(PointLightUniforms()), initUniforms(); }
@@ -65,7 +74,8 @@ private:
 	GLuint program;
 	std::string vertexLoc, fragmentLoc;
 	Uniform uniforms;
-	LightUniforms lightUniforms;
+	GeneralLightUniforms generalLightUniforms;
+	SpotLightUniforms spotLightUniforms;
 	std::vector<PointLightUniforms> pointLightUniforms;
 	PhongLight* phongLight;
 
@@ -75,6 +85,10 @@ private:
 	void attachShader(const char* shaderSource, GLenum shaderType);
 
 	void initUniforms();
+	void initGeneralUniforms();
+	void initGeneralLightUniforms();
+	void initPointLightsUniforms();
+	void initSpotLightUniforms();
 };
 
 #endif

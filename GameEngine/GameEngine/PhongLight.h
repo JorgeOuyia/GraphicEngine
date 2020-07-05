@@ -59,22 +59,40 @@ struct PointLight : public BaseLight
 	}
 };
 
+struct SpotLight : public PointLight
+{
+	glm::vec3 direction;
+	GLfloat cutOff;
+
+	SpotLight(glm::vec3 colour, GLfloat ambientIntensity, GLfloat diffuseIntensity,
+		glm::vec3 position, GLfloat constant, GLfloat linear, GLfloat exp,
+		glm::vec3 direction, GLfloat cutOff) : PointLight(colour, ambientIntensity, diffuseIntensity,
+			position, constant, linear, exp)
+	{
+		this->direction = direction;
+		this->cutOff = cutOff;
+	}
+};
+
 class PhongLight
 {
 public:
 	PhongLight(DirectionalLight dirLight,
-		SpecularLight specLight);
+		SpecularLight specLight,
+		SpotLight spotLight);
 
 	inline DirectionalLight getDirectionalLight() { return dirLight; }
 	inline SpecularLight getSpecularLight() { return specLight; }
+	inline SpotLight getSpotLight() { return spotLight; }
 	inline std::vector<PointLight> getPointLights() { return pointLights; }
-	
+
 	inline void addPointLight(const PointLight& pointLight) { pointLights.push_back(pointLight); }
 
 	~PhongLight();
 private:
 	DirectionalLight dirLight;
 	SpecularLight specLight;
+	SpotLight spotLight;
 	std::vector<PointLight> pointLights;
 };
 

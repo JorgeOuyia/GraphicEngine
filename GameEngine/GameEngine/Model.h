@@ -36,10 +36,16 @@ private:
 	std::vector<unsigned int> meshToTex;
 
 	void init();
+
 	void loadNode(aiNode* node, const aiScene* scene);
 	void loadModel(aiMesh* mesh, const aiScene* scene);
 	void loadTextures(const aiScene* scene);
+
 	void uploadUniforms();
+	void uploadGeneralUniforms();
+	void uploadGeneralLightUniforms();
+	void uploadPointLightsUniforms();
+	void uploadSpotLightUniforms();
 };
 
 #endif

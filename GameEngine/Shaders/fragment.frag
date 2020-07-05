@@ -25,9 +25,21 @@ struct PointLight
 	float exp;
 };
 
+struct SpotLight
+{
+	vec3 colour;
+	float ambientIntensity;
+	float diffuseIntensity;
+	vec3 position;
+	float constant;
+	float linear;
+	float exp;
+	vec3 direction;
+	float cutOff;
+};
+
 in vec2 fragmentTex;
 in vec3 fragmentNormal;
-in vec3 fragmentEye;
 in vec3 fragmentPos;
 
 out vec4 colour;
@@ -38,6 +50,10 @@ uniform int numPointLights;
 uniform DirectionalLight directionalLight;
 uniform SpecularLight specularLight;
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
+uniform SpotLight spotLight;
+uniform vec3 eye;
+
+uniform sampler2D tex;
 
 vec4 calcPhongLight(DirectionalLight directionalLight, SpecularLight specularLight)
 {
@@ -54,7 +70,7 @@ vec4 calcPhongLight(DirectionalLight directionalLight, SpecularLight specularLig
 	{
 		diffuseColour = vec4(directionalLight.colour, 1.0f) * directionalLight.diffuseIntensity * diffuseFactor;
 		
-		vec3 vertexToEye = normalize(fragmentEye - fragmentPos);
+		vec3 vertexToEye = normalize(eye - fragmentPos);
 		vec3 lightReflect = normalize(reflect(directionalLight.direction, normal));
 		float specularFactor = dot(vertexToEye, lightReflect);
 		if (specularFactor > 0)
@@ -77,12 +93,39 @@ vec4 calcPointLight(PointLight pointLight)
 	dirLight.ambientIntensity = pointLight.ambientIntensity;
 	dirLight.diffuseIntensity = pointLight.diffuseIntensity;
 	dirLight.direction = lightDirection;
-	SpecularLight specLight = specularLight;
+	SpecularLight specLight;
+	specLight.specularIntensity = 0.0f;
+	specLight.specularPower = 0.0f;
 	vec4 colour = calcPhongLight(dirLight, specLight);
 	
 	float attenuation = pointLight.constant + (pointLight.linear * distance) + (pointLight.exp * distance * distance);
 	
 	return colour / attenuation;
+}
+
+vec4 calcSpotLight(SpotLight spotLight)
+{
+	vec3 lightToPixel = normalize(fragmentPos - spotLight.position);
+	float spotFactor = dot(lightToPixel, spotLight.direction);
+	
+	if (spotFactor > spotLight.cutOff)
+	{
+		PointLight pLight;
+		pLight.colour = spotLight.colour;
+		pLight.ambientIntensity = spotLight.ambientIntensity;
+		pLight.diffuseIntensity = spotLight.diffuseIntensity;
+		pLight.position = spotLight.position;
+		pLight.constant = spotLight.constant;
+		pLight.linear = spotLight.linear;
+		pLight.exp = spotLight.exp;
+		vec4 colour = calcPointLight(pLight);
+		
+		return colour * (1.0f - (1.0f - spotFactor) * (1.0f / (1.0f - spotLight.cutOff)));
+	}
+	else
+	{
+		return vec4(0.0f, 0.0f, 0.0f, 0.0f);
+	}
 }
 
 vec4 calcPointLights(PointLight pointLights[MAX_POINT_LIGHTS])
@@ -95,10 +138,8 @@ vec4 calcPointLights(PointLight pointLights[MAX_POINT_LIGHTS])
 	return colour;
 }
 
-uniform sampler2D tex;
-
 void main()
 {
-	colour = texture(tex, fragmentTex) * (calcPhongLight(directionalLight, specularLight) + calcPointLights(pointLights));
+	colour = texture(tex, fragmentTex) * (calcPhongLight(directionalLight, specularLight) + calcPointLights(pointLights) + calcSpotLight(spotLight));
 	//colour = vec4(fragmentPos, 1.0f);
 }
