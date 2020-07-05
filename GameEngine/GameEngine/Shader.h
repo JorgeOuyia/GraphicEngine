@@ -18,6 +18,7 @@ struct Uniform
 	GLuint viewLoc;
 	GLuint projLoc;
 	GLuint eyePositionLoc;
+	GLuint numPointLightsLoc;
 };
 
 struct LightUniforms
@@ -28,6 +29,17 @@ struct LightUniforms
 	GLuint diffuseIntensityLoc;
 	GLuint specularIntensity;
 	GLuint specularPower;
+};
+
+struct PointLightUniforms
+{
+	GLuint colourLoc;
+	GLuint ambientIntensityLoc;
+	GLuint diffuseIntensityLoc;
+	GLuint positionLoc;
+	GLuint constantLoc;
+	GLuint linearLoc;
+	GLuint expLoc;
 };
 
 class Shader
@@ -44,6 +56,9 @@ public:
 
 	inline PhongLight* getPhongLight() { return phongLight; }
 	inline LightUniforms getLightUniforms() { return lightUniforms; }
+	inline std::vector<PointLightUniforms> getPointLightUniforms() { return pointLightUniforms; }
+
+	inline void addPointLight(const PointLight& pointLight) { phongLight->addPointLight(pointLight); pointLightUniforms.push_back(PointLightUniforms()), initUniforms(); }
 
 	~Shader();
 private:
@@ -51,6 +66,7 @@ private:
 	std::string vertexLoc, fragmentLoc;
 	Uniform uniforms;
 	LightUniforms lightUniforms;
+	std::vector<PointLightUniforms> pointLightUniforms;
 	PhongLight* phongLight;
 
 	std::string readFile(const std::string &fileLoc);

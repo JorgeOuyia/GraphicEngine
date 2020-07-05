@@ -7,8 +7,8 @@ DB::DB(int windowWidth, int windowHeight) : windowWidth(windowWidth), windowHeig
 
 void DB::run()
 {
-	addModel("../Models/worm.obj", "../Shaders/vertex.vert", "../Shaders/fragment.frag", glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.2f, 0.2f, 0.2f));
-	addModel("../Models/goku.obj", "../Shaders/vertex.vert", "../Shaders/fragment.frag", glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.02f, 0.02f, 0.02f));
+	addModel("../Models/scenario.obj", "../Shaders/vertex.vert", "../Shaders/fragment.frag", glm::vec3(1.0f, -5.0f, 0.0f), glm::vec3(0.7f, 0.7f, 0.7f));
+	addModel("../Models/goku.obj", "../Shaders/vertex.vert", "../Shaders/fragment.frag", glm::vec3(1.0f, -5.0f, -10.0f), glm::vec3(0.1f, 0.1f, 0.1f));
 	GLfloat lastTime = 0.0f;
 	while (!glfwWindowShouldClose(window))
 	{

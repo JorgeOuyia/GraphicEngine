@@ -29,6 +29,15 @@ void Camera::keyControl(int* keys, const GLfloat &deltaTime)
 	{
 		position += right * movementSpeed * deltaTime;
 	}
+	
+	if (keys[GLFW_KEY_CAPS_LOCK])
+	{
+		movementSpeed = 10.0f;
+	}
+	else
+	{
+		movementSpeed = 5.0f;
+	}
 }
 
 void Camera::mouseControl(GLfloat xChange, GLfloat yChange)

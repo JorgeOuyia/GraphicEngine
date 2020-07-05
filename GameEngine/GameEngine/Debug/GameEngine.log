@@ -6,4 +6,16 @@ D:\JORGE\TFG\GameEngine\GameEngine\DB.cpp(138,24): warning C4244: '=': conversi�
 D:\JORGE\TFG\GameEngine\GameEngine\DB.cpp(139,32): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
 D:\JORGE\TFG\GameEngine\GameEngine\DB.cpp(141,17): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
 D:\JORGE\TFG\GameEngine\GameEngine\DB.cpp(142,17): warning C4244: '=': conversión de 'double' a 'GLfloat'; posible pérdida de datos
+  Model.cpp
+D:\JORGE\TFG\GameEngine\GameEngine\Model.cpp(78,20): warning C4018: '<': no coinciden signed/unsigned
+D:\JORGE\TFG\GameEngine\GameEngine\Model.cpp(82,20): warning C4018: '<': no coinciden signed/unsigned
+D:\JORGE\TFG\GameEngine\GameEngine\Model.cpp(93,20): warning C4018: '<': no coinciden signed/unsigned
+D:\JORGE\TFG\GameEngine\GameEngine\Model.cpp(128,20): warning C4018: '<': no coinciden signed/unsigned
+D:\JORGE\TFG\GameEngine\GameEngine\Model.cpp(131,21): warning C4018: '<': no coinciden signed/unsigned
+D:\JORGE\TFG\GameEngine\GameEngine\Model.cpp(150,20): warning C4018: '<': no coinciden signed/unsigned
+D:\JORGE\TFG\GameEngine\GameEngine\Model.cpp(214,20): warning C4018: '<': no coinciden signed/unsigned
+  Shader.cpp
+D:\JORGE\TFG\GameEngine\GameEngine\Shader.cpp(134,20): warning C4018: '<': no coinciden signed/unsigned
+  main.cpp
+  Generando código...
   GameEngine.vcxproj -> D:\JORGE\TFG\GameEngine\Debug\GameEngine.exe
