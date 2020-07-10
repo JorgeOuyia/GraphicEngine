@@ -7,8 +7,8 @@ DB::DB(int windowWidth, int windowHeight) : windowWidth(windowWidth), windowHeig
 
 void DB::run()
 {
-	addModel("../Models/scenario.obj", "../Shaders/vertex.vert", "../Shaders/fragment.frag", glm::vec3(1.0f, -5.0f, 0.0f), glm::vec3(0.7f, 0.7f, 0.7f));
-	addModel("../Models/goku.obj", "../Shaders/vertex.vert", "../Shaders/fragment.frag", glm::vec3(1.0f, -5.0f, -10.0f), glm::vec3(0.1f, 0.1f, 0.1f));
+	addModel("../Models/alien.dae", "../Shaders/vertex.vert", "../Shaders/fragment.frag", glm::vec3(1.0f, -5.0f, 0.0f), glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(-90.0f, 0.0f, 0.0f));
+	/*addModel("../Models/goku.obj", "../Shaders/vertex.vert", "../Shaders/fragment.frag", glm::vec3(1.0f, -5.0f, -10.0f), glm::vec3(0.1f, 0.1f, 0.1f));*/
 	GLfloat lastTime = 0.0f;
 	while (!glfwWindowShouldClose(window))
 	{
@@ -142,8 +142,8 @@ void DB::mouseCallback(GLFWwindow* window, double xPos, double yPos)
 	theDB->lastY = yPos;
 }
 
-void DB::addModel(const std::string &fileLoc, const std::string &vertexLoc, const std::string &fragmentLoc, const glm::vec3 &position, const glm::vec3 &scale)
+void DB::addModel(const std::string &fileLoc, const std::string &vertexLoc, const std::string &fragmentLoc, const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3& rotation)
 {
-	Model* newModel = new Model(fileLoc, vertexLoc, fragmentLoc, position, scale, camera);
+	Model* newModel = new Model(fileLoc, vertexLoc, fragmentLoc, position, scale, rotation, camera);
 	models.push_back(newModel);
 }

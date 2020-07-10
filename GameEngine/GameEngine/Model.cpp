@@ -1,9 +1,10 @@
 #include "Model.h"
 
-Model::Model(std::string objectLoc, std::string vertexLoc, std::string fragmentLoc, glm::vec3 position, glm::vec3 scale, Camera* camera)
+Model::Model(std::string objectLoc, std::string vertexLoc, std::string fragmentLoc, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, Camera* camera)
 	: objectLoc(objectLoc), vertexLoc(vertexLoc), fragmentLoc(fragmentLoc),
-	position(position), scale(scale),
-	camera(camera)
+	position(position), scale(scale), rotation(rotation),
+	camera(camera),
+	boneCount(0)
 {
 	init();
 }
@@ -45,15 +46,18 @@ Model::~Model()
 void Model::init()
 {
 	shader = new Shader(vertexLoc, fragmentLoc,
-		DirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f), 0.02f, 0.1f, glm::vec3(0.0f, 0.0f, -1.0f)),
-		SpecularLight(0.0f, 0.0f),
+		DirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f), 0.4f, 0.1f, glm::vec3(0.0f, 0.0f, -1.0f)),
+		SpecularLight(1.0f, 250.0f),
 		SpotLight(glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, 0.0f, 0.0f, glm::vec3(0.0f, 0.0f, -1.0f), glm::radians(10.0f)));
 
 	shader->addPointLight(PointLight(glm::vec3(1.0f, 0.0f, 0.0f), 0.2f, 0.2f, glm::vec3(0.0f, 0.0f, -15.0f), 0.3f, 0.2f, 0.1f));
 	shader->addPointLight(PointLight(glm::vec3(0.0f, 1.0f, 0.0f), 0.2f, 0.2f, glm::vec3(10.0f, 0.0f, -15.0f), 0.3f, 0.2f, 0.1f));
 	shader->addPointLight(PointLight(glm::vec3(0.0f, 0.0f, 1.0f), 0.2f, 1.2f, glm::vec3(-10.0f, 0.0f, -15.0f), 0.8f, 0.2f, 0.1f));
 
-	model = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), scale) /** glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f))*/;
+	model = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), scale)
+		* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1, 0, 0))
+		* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0, 1, 0))
+		* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0, 0, 1));
 
 	Assimp::Importer importer;
 
@@ -70,6 +74,7 @@ void Model::init()
 	}
 
 	aiNode* rootNode = scene->mRootNode;
+	globalInverseTransform = aiMatrix4x4ToGlm(rootNode->mTransformation.Inverse());
 	loadNode(rootNode, scene);
 	loadTextures(scene);
 }
@@ -90,6 +95,8 @@ void Model::loadModel(aiMesh* mesh, const aiScene* scene)
 {
 	std::vector<GLfloat> vertex;
 	std::vector<unsigned int> indices;
+	std::vector<VertexBoneData> bones;
+	bones.resize(mesh->mNumVertices);
 
 	for (int i = 0; i < mesh->mNumVertices; i++)
 	{
@@ -121,9 +128,31 @@ void Model::loadModel(aiMesh* mesh, const aiScene* scene)
 			vertex.push_back(0.0f);
 		}
 
-		vertex.push_back(mesh->mNormals[i].x);
-		vertex.push_back(mesh->mNormals[i].y);
-		vertex.push_back(mesh->mNormals[i].z);
+		if (mesh->HasNormals())
+		{
+			vertex.push_back(mesh->mNormals[i].x);
+			vertex.push_back(mesh->mNormals[i].y);
+			vertex.push_back(mesh->mNormals[i].z);
+		}
+		else
+		{
+			vertex.push_back(0.0f);
+			vertex.push_back(0.0f);
+			vertex.push_back(0.0f);
+		}
+
+		if (mesh->HasTangentsAndBitangents())
+		{
+			vertex.push_back(mesh->mTangents[i].x);
+			vertex.push_back(mesh->mTangents[i].y);
+			vertex.push_back(mesh->mTangents[i].z);
+		}
+		else
+		{
+			vertex.push_back(0.0f);
+			vertex.push_back(0.0f);
+			vertex.push_back(0.0f);
+		}
 	}
 
 	for (int i = 0; i < mesh->mNumFaces; i++)
@@ -135,10 +164,51 @@ void Model::loadModel(aiMesh* mesh, const aiScene* scene)
 		}
 	}
 
+	for (int i = 0; i < mesh->mNumBones; i++)
+	{
+		GLuint index = 0;
+		std::string boneName(mesh->mBones[i]->mName.data);
+
+		if (boneMapping.find(boneName) == boneMapping.end())
+		{
+			index = boneCount++;
+			boneMapping[boneName] = index;
+		}
+		else
+		{
+			index = boneMapping[boneName];
+		}
+
+		glm::mat4 offsetMatrix = aiMatrix4x4ToGlm(mesh->mBones[i]->mOffsetMatrix);
+		
+		for (int j = 0; j < mesh->mBones[i]->mNumWeights; j++)
+		{
+			GLuint vertexId = mesh->mBones[i]->mWeights[j].mVertexId;
+			GLfloat weight = mesh->mBones[i]->mWeights[j].mWeight;
+
+			bones[vertexId].addData(boneCount, weight);
+		}
+	}
+
+	std::vector<GLuint> bonesIds;
+	std::vector<GLfloat> bonesWeights;
+
+	for (int i = 0; i < bones.size(); i++)
+	{
+		for (int j = 0; j < BONES_PER_VERTEX; j++)
+		{
+			bonesIds.push_back(bones[i].ids[j]);
+			bonesWeights.push_back(bones[i].weights[j]);
+		}
+	}
+
 	Mesh* newMesh = new Mesh(&vertex[0],
 		&indices[0],
+		&bonesIds[0],
+		&bonesWeights[0],
 		vertex.size(),
-		indices.size());
+		indices.size(),
+		bonesIds.size());
 	meshes.push_back(newMesh);
 	// Map the texture to the mesh
 	meshToTex.push_back(mesh->mMaterialIndex);
@@ -192,19 +262,38 @@ void Model::loadTextures(const aiScene* scene)
 		}
 		else
 		{
-			textures[i] = new Texture("../Textures/white.png");
+			textures[i] = new Texture("../Textures/Alien-Animal-Base-Color.jpg");
 		}
 	}
+}
+
+void Model::boneTransform(const GLfloat& seconds, const aiScene* scene)
+{
+	glm::mat4 identity = glm::mat4(1.0f);
+
+	GLfloat ticksPerSecond = scene->mAnimations[0]->mTicksPerSecond != 0 ? scene->mAnimations[0]->mTicksPerSecond : 25.0f;
+	GLfloat timeInTicks = seconds * ticksPerSecond;
+	GLfloat animationTime = fmod(timeInTicks, scene->mAnimations[0]->mDuration);
+
+	bonesTransformations.resize(boneMapping.size());
+
+	readNodeHeirarchy(animationTime, scene->mRootNode, identity, scene);
+}
+
+void Model::readNodeHeirarchy(const GLfloat& animationTime, const aiNode* pNode, const glm::mat4& parentTransform, const aiScene* scene)
+{
+	std::string nodeName(pNode->mName.data);
+
+	const aiAnimation* pAnimation = scene->mAnimations[0];
+
+	glm::mat4 nodeTransformation(aiMatrix4x4ToGlm(pNode->mTransformation));
 }
 
 void Model::uploadUniforms()
 {
 	uploadGeneralUniforms();
-
 	uploadGeneralLightUniforms();
-
 	uploadPointLightsUniforms();
-
 	uploadSpotLightUniforms();
 }
 
@@ -252,4 +341,27 @@ void Model::uploadSpotLightUniforms()
 	glUniform1f(shader->getSpotLightUniforms().expLoc, shader->getPhongLight()->getSpotLight().exp);
 	glUniform3fv(shader->getSpotLightUniforms().directionLoc, 1, glm::value_ptr(camera->getDirection()));
 	glUniform1f(shader->getSpotLightUniforms().cutOffLoc, cosf(shader->getPhongLight()->getSpotLight().cutOff));
+}
+
+glm::mat3 Model::aiMatrix3x3ToGlm(const aiMatrix3x3& matrix)
+{
+	glm::mat3 result;
+
+	result[0][0] = matrix.a1; result[0][1] = matrix.b1; result[0][2] = matrix.c1;
+	result[1][0] = matrix.a2; result[1][1] = matrix.b2; result[1][2] = matrix.c2;
+	result[2][0] = matrix.a3; result[2][1] = matrix.b3; result[2][2] = matrix.c3;
+
+	return result;
+}
+
+glm::mat4 Model::aiMatrix4x4ToGlm(const aiMatrix4x4& matrix)
+{
+	glm::mat4 result;
+
+	result[0][0] = matrix.a1; result[0][1] = matrix.b1; result[0][2] = matrix.c1; result[0][3] = matrix.d1;
+	result[1][0] = matrix.a2; result[1][1] = matrix.b2; result[1][2] = matrix.c2; result[1][3] = matrix.d2;
+	result[2][0] = matrix.a3; result[2][1] = matrix.b3; result[2][2] = matrix.c3; result[2][3] = matrix.d3;
+	result[3][0] = matrix.a4; result[3][1] = matrix.b4; result[3][2] = matrix.c4; result[3][3] = matrix.d4;
+
+	return result;
 }

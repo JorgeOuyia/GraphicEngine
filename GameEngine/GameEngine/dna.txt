@@ -1640,7 +1640,8 @@ BooleanModifierData 128
 	Object *object 112 8
 	char operation 120 1
 	char solver 121 1
-	char pad 122 2
+	char pad 122 1
+	char bm_flag 123 1
 	float double_threshold 124 4
 
 MDefInfluence 8
@@ -1774,7 +1775,7 @@ SolidifyModifierData 216
 	short mat_ofs 212 2
 	short mat_ofs_rim 214 2
 
-ScrewModifierData 144
+ScrewModifierData 152
 
 	ModifierData modifier 0 112
 	Object *ob_axis 112 8
@@ -1783,9 +1784,10 @@ ScrewModifierData 144
 	int iter 128 4
 	float screw_ofs 132 4
 	float angle 136 4
-	char axis 140 1
-	char pad 141 1
-	short flag 142 2
+	float merge_dist 140 4
+	short flag 144 2
+	char axis 146 1
+	char pad 147 5
 
 OceanModifierData 1296
 
@@ -4467,7 +4469,7 @@ UserDef 12080
 	int scrollback 8520 4
 	int dpi 8524 4
 	float ui_scale 8528 4
-	int pad1 8532 4
+	int ui_line_width 8532 4
 	char node_margin 8536 1
 	char pad2 8537 1
 	short transopts 8538 2
@@ -7339,7 +7341,7 @@ ParticleSystem 648
 	BVHTree *bvhtree 624 8
 	ParticleDrawData *pdd 632 8
 	float dt_frac 640 4
-	float _pad 644 4
+	float lattice_strength 644 4
 
 ClothSimSettings 192
 

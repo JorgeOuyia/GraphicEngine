@@ -27,7 +27,7 @@ private:
 	static void reshapeCallback(GLFWwindow* window, int width, int height);
 	static void mouseCallback(GLFWwindow* window, double xPos, double yPos);
 
-	void addModel(const std::string &fileLoc, const std::string &vertexLoc, const std::string &fragmentLoc, const glm::vec3 &position, const glm::vec3 &scale);
+	void addModel(const std::string& fileLoc, const std::string& vertexLoc, const std::string& fragmentLoc, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation);
 };
 
 #endif // !DB_H
