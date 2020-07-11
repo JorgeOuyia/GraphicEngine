@@ -182,30 +182,46 @@ void Model::loadModel(aiMesh* mesh)
 		}
 	}
 
-	for (int i = 0; i < mesh->mNumBones; i++)
+	if (mesh->HasBones())
 	{
-		GLuint index = 0;
-		std::string boneName(mesh->mBones[i]->mName.data);
-
-		if (boneMapping.find(boneName) == boneMapping.end())
+		for (int i = 0; i < mesh->mNumBones; i++)
 		{
-			index = boneCount++;
-			BoneMatrix boneMatrix;
-			boneMatrices.push_back(boneMatrix);
-			boneMatrices[index].offset = aiMatrix4x4ToGlm(mesh->mBones[i]->mOffsetMatrix);
-			boneMapping[boneName] = index;
+			GLuint index = 0;
+			std::string boneName(mesh->mBones[i]->mName.data);
+
+			if (boneMapping.find(boneName) == boneMapping.end())
+			{
+				index = boneCount++;
+				BoneMatrix boneMatrix;
+				boneMatrices.push_back(boneMatrix);
+				boneMatrices[index].offset = aiMatrix4x4ToGlm(mesh->mBones[i]->mOffsetMatrix);
+				boneMapping[boneName] = index;
+			}
+			else
+			{
+				index = boneMapping[boneName];
+			}
+
+			for (int j = 0; j < mesh->mBones[i]->mNumWeights; j++)
+			{
+				GLuint vertexId = mesh->mBones[i]->mWeights[j].mVertexId;
+				GLfloat weight = mesh->mBones[i]->mWeights[j].mWeight;
+
+				bones[vertexId].addData(index, weight);
+			}
 		}
-		else
+	}
+	else
+	{
+		for (int i = 0; i < mesh->mNumVertices; i++)
 		{
-			index = boneMapping[boneName];
-		}
-
-		for (int j = 0; j < mesh->mBones[i]->mNumWeights; j++)
-		{
-			GLuint vertexId = mesh->mBones[i]->mWeights[j].mVertexId;
-			GLfloat weight = mesh->mBones[i]->mWeights[j].mWeight;
-
-			bones[vertexId].addData(index, weight);
+			VertexBoneData vbd;
+			for (int j = 0; j < BONES_PER_VERTEX; j++)
+			{
+				vbd.ids[j] = 0;
+				vbd.weights[j] = 1;
+			}
+			bones[i] = vbd;
 		}
 	}
 
