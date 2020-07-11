@@ -90,15 +90,17 @@ void Mesh::init()
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	// Bone ids
 	glGenBuffers(1, &bbo[0]);
 	glBindBuffer(GL_ARRAY_BUFFER, bbo[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLuint) * boneCount, bonesIds, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(5, 4, GL_UNSIGNED_INT, GL_FALSE, 0, 0);
+	glVertexAttribIPointer(5, 4, GL_INT, 0, 0);
 	glEnableVertexAttribArray(5);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	// Bone weights
 	glGenBuffers(1, &bbo[1]);
 	glBindBuffer(GL_ARRAY_BUFFER, bbo[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * boneCount, bonesWeights, GL_STATIC_DRAW);

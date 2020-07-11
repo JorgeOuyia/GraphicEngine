@@ -1,6 +1,8 @@
 #ifndef SHADER_H
 #define SHADER_H
 
+#define MAX_BONES 150
+
 #include "PhongLight.h"
 
 #include <string>
@@ -49,6 +51,11 @@ struct SpotLightUniforms : public PointLightUniforms
 	GLuint cutOffLoc;
 };
 
+struct SkeletalUniforms
+{
+	GLuint bonesLoc;
+};
+
 class Shader
 {
 public:
@@ -66,6 +73,7 @@ public:
 	inline GeneralLightUniforms getGeneralLightUniforms() { return generalLightUniforms; }
 	inline SpotLightUniforms getSpotLightUniforms() { return spotLightUniforms; }
 	inline std::vector<PointLightUniforms> getPointLightUniforms() { return pointLightUniforms; }
+	inline std::vector<SkeletalUniforms> getSkeletalUniforms() const { return skeletalUniforms; }
 
 	inline void addPointLight(const PointLight& pointLight) { phongLight->addPointLight(pointLight); pointLightUniforms.push_back(PointLightUniforms()), initUniforms(); }
 
@@ -77,6 +85,7 @@ private:
 	GeneralLightUniforms generalLightUniforms;
 	SpotLightUniforms spotLightUniforms;
 	std::vector<PointLightUniforms> pointLightUniforms;
+	std::vector<SkeletalUniforms> skeletalUniforms;
 	PhongLight* phongLight;
 
 	std::string readFile(const std::string &fileLoc);
@@ -89,6 +98,7 @@ private:
 	void initGeneralLightUniforms();
 	void initPointLightsUniforms();
 	void initSpotLightUniforms();
+	void initSkeletalUniforms();
 };
 
 #endif

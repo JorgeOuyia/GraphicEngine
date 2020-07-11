@@ -14,6 +14,8 @@ Shader::Shader(std::string vertexLoc, std::string fragmentLoc, DirectionalLight 
 	generalLightUniforms.specularIntensity = 0;
 	generalLightUniforms.specularPower = 0;
 
+	skeletalUniforms.resize(MAX_BONES);
+
 	phongLight = new PhongLight(directionalLight, specularLight, spotLight);
 	init();
 }
@@ -122,6 +124,7 @@ void Shader::initUniforms()
 	initGeneralLightUniforms();
 	initPointLightsUniforms();
 	initSpotLightUniforms();
+	initSkeletalUniforms();
 }
 
 void Shader::initGeneralUniforms()
@@ -145,10 +148,10 @@ void Shader::initGeneralLightUniforms()
 
 void Shader::initPointLightsUniforms()
 {
+	std::string location;
+
 	for (int i = 0; i < phongLight->getPointLights().size(); i++)
 	{
-		std::string location;
-
 		location.clear();
 		location.append("pointLights[" + std::to_string(i)); location.append("].colour");
 		pointLightUniforms[i].colourLoc = glGetUniformLocation(program, location.c_str());
@@ -190,4 +193,16 @@ void Shader::initSpotLightUniforms()
 	spotLightUniforms.expLoc = glGetUniformLocation(program, "spotLight.exp");
 	spotLightUniforms.directionLoc = glGetUniformLocation(program, "spotLight.direction");
 	spotLightUniforms.cutOffLoc = glGetUniformLocation(program, "spotLight.cutOff");
+}
+
+void Shader::initSkeletalUniforms()
+{
+	std::string location;
+
+	for (int i = 0; i < MAX_BONES; i++)
+	{
+		location.clear();
+		location.append("bones[" + std::to_string(i)); location.append("]");
+		skeletalUniforms[i].bonesLoc = glGetUniformLocation(program, location.c_str());
+	}
 }

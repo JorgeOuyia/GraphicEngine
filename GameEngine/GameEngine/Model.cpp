@@ -13,6 +13,19 @@ void Model::render()
 {
 	shader->use();
 	uploadUniforms();
+	std::vector<glm::mat4> transforms;
+	if (scene->HasAnimations())
+	{
+		boneTransform(glfwGetTime(), transforms);
+	}
+	else
+	{
+		for (int i = 0; i < MAX_BONES; i++)
+		{
+			transforms.push_back(glm::mat4(1.0f));
+		}
+	}
+	uploadSkeletalUniforms(transforms);
 	int i = 0;
 	for (Mesh* mesh : meshes)
 	{
@@ -39,6 +52,7 @@ Model::~Model()
 {
 	delete camera;
 	delete shader;
+	delete scene;
 	meshes.clear();
 	textures.clear();
 }
@@ -54,14 +68,15 @@ void Model::init()
 	shader->addPointLight(PointLight(glm::vec3(0.0f, 1.0f, 0.0f), 0.2f, 0.2f, glm::vec3(10.0f, 0.0f, -15.0f), 0.3f, 0.2f, 0.1f));
 	shader->addPointLight(PointLight(glm::vec3(0.0f, 0.0f, 1.0f), 0.2f, 1.2f, glm::vec3(-10.0f, 0.0f, -15.0f), 0.8f, 0.2f, 0.1f));
 
-	model = glm::translate(glm::mat4(1.0f), position) * glm::scale(glm::mat4(1.0f), scale)
+	model = glm::translate(glm::mat4(1.0f), position)
+		* glm::scale(glm::mat4(1.0f), scale)
 		* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1, 0, 0))
 		* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0, 1, 0))
 		* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0, 0, 1));
 
 	Assimp::Importer importer;
 
-	const aiScene* scene = importer.ReadFile(objectLoc,
+	scene = importer.ReadFile(objectLoc,
 		aiProcess_Triangulate |
 		aiProcess_FlipUVs |
 		aiProcess_GenSmoothNormals |
@@ -73,29 +88,32 @@ void Model::init()
 		return;
 	}
 
+	scene = importer.GetOrphanedScene();
+
 	aiNode* rootNode = scene->mRootNode;
 	globalInverseTransform = aiMatrix4x4ToGlm(rootNode->mTransformation.Inverse());
-	loadNode(rootNode, scene);
-	loadTextures(scene);
+	loadNode(rootNode);
+	loadTextures();
 }
 
-void Model::loadNode(aiNode* node, const aiScene* scene)
+void Model::loadNode(aiNode* node)
 {
 	for (int i = 0; i < node->mNumMeshes; i++)
 	{
-		loadModel(scene->mMeshes[node->mMeshes[i]], scene);
+		loadModel(scene->mMeshes[node->mMeshes[i]]);
 	}
 	for (int i = 0; i < node->mNumChildren; i++)
 	{
-		loadNode(node->mChildren[i], scene);
+		loadNode(node->mChildren[i]);
 	}
 }
 
-void Model::loadModel(aiMesh* mesh, const aiScene* scene)
+void Model::loadModel(aiMesh* mesh)
 {
 	std::vector<GLfloat> vertex;
 	std::vector<unsigned int> indices;
 	std::vector<VertexBoneData> bones;
+
 	bones.resize(mesh->mNumVertices);
 
 	for (int i = 0; i < mesh->mNumVertices; i++)
@@ -172,6 +190,9 @@ void Model::loadModel(aiMesh* mesh, const aiScene* scene)
 		if (boneMapping.find(boneName) == boneMapping.end())
 		{
 			index = boneCount++;
+			BoneMatrix boneMatrix;
+			boneMatrices.push_back(boneMatrix);
+			boneMatrices[index].offset = aiMatrix4x4ToGlm(mesh->mBones[i]->mOffsetMatrix);
 			boneMapping[boneName] = index;
 		}
 		else
@@ -179,14 +200,12 @@ void Model::loadModel(aiMesh* mesh, const aiScene* scene)
 			index = boneMapping[boneName];
 		}
 
-		glm::mat4 offsetMatrix = aiMatrix4x4ToGlm(mesh->mBones[i]->mOffsetMatrix);
-		
 		for (int j = 0; j < mesh->mBones[i]->mNumWeights; j++)
 		{
 			GLuint vertexId = mesh->mBones[i]->mWeights[j].mVertexId;
 			GLfloat weight = mesh->mBones[i]->mWeights[j].mWeight;
 
-			bones[vertexId].addData(boneCount, weight);
+			bones[vertexId].addData(index, weight);
 		}
 	}
 
@@ -214,7 +233,7 @@ void Model::loadModel(aiMesh* mesh, const aiScene* scene)
 	meshToTex.push_back(mesh->mMaterialIndex);
 }
 
-void Model::loadTextures(const aiScene* scene)
+void Model::loadTextures()
 {
 	textures.resize(scene->mNumMaterials);
 
@@ -242,51 +261,35 @@ void Model::loadTextures(const aiScene* scene)
 
 			std::string name = textureName.data;
 
-			if (name.substr(name.length() - 3, name.length() - 1) == "tif")
+			if (name.length() > 4)
 			{
-				name = name.substr(0, name.length() - 3) + "png";
-			}
-			std::string realName = "";
-			int p = name.length() - 1;
-			while (p >= 0 && name[p] != '/' && name[p] != '\\')
-			{
-				realName.push_back(name[p]);
-				p--;
-			}
-			std::reverse(realName.begin(), realName.end());
-			std::string location = "../Textures/";
-			std::string textureFileName = location + realName;
+				if (name.substr(name.length() - 3, name.length() - 1) == "tif")
+				{
+					name = name.substr(0, name.length() - 3) + "png";
+				}
+				std::string realName = "";
+				int p = name.length() - 1;
+				while (p >= 0 && name[p] != '/' && name[p] != '\\')
+				{
+					realName.push_back(name[p]);
+					p--;
+				}
+				std::reverse(realName.begin(), realName.end());
+				std::string location = "../Textures/";
+				std::string textureFileName = location + realName;
 
-			textures[i] = new Texture(textureFileName);
-			/*textures[i] = new Texture("../Textures/white.png");*/
+				textures[i] = new Texture(textureFileName);
+			}
+			else
+			{
+				textures[i] = new Texture("../Textures/white.png");
+			}
 		}
 		else
 		{
-			textures[i] = new Texture("../Textures/Alien-Animal-Base-Color.jpg");
+			textures[i] = new Texture("../Textures/white.png");
 		}
 	}
-}
-
-void Model::boneTransform(const GLfloat& seconds, const aiScene* scene)
-{
-	glm::mat4 identity = glm::mat4(1.0f);
-
-	GLfloat ticksPerSecond = scene->mAnimations[0]->mTicksPerSecond != 0 ? scene->mAnimations[0]->mTicksPerSecond : 25.0f;
-	GLfloat timeInTicks = seconds * ticksPerSecond;
-	GLfloat animationTime = fmod(timeInTicks, scene->mAnimations[0]->mDuration);
-
-	bonesTransformations.resize(boneMapping.size());
-
-	readNodeHeirarchy(animationTime, scene->mRootNode, identity, scene);
-}
-
-void Model::readNodeHeirarchy(const GLfloat& animationTime, const aiNode* pNode, const glm::mat4& parentTransform, const aiScene* scene)
-{
-	std::string nodeName(pNode->mName.data);
-
-	const aiAnimation* pAnimation = scene->mAnimations[0];
-
-	glm::mat4 nodeTransformation(aiMatrix4x4ToGlm(pNode->mTransformation));
 }
 
 void Model::uploadUniforms()
@@ -343,13 +346,161 @@ void Model::uploadSpotLightUniforms()
 	glUniform1f(shader->getSpotLightUniforms().cutOffLoc, cosf(shader->getPhongLight()->getSpotLight().cutOff));
 }
 
+void Model::uploadSkeletalUniforms(const std::vector<glm::mat4>& transforms)
+{
+	for (int i = 0; i < transforms.size(); i++)
+	{
+		glUniformMatrix4fv(shader->getSkeletalUniforms()[i].bonesLoc, 1, GL_FALSE, glm::value_ptr(transforms[i]));
+	}
+}
+
+void Model::boneTransform(const GLfloat& timeInSeconds, std::vector<glm::mat4>& transforms)
+{
+	glm::mat4 identity = glm::mat4(1.0f);
+
+	GLfloat ticksPerSecond = scene->mAnimations[0]->mTicksPerSecond != 0 ? scene->mAnimations[0]->mTicksPerSecond : 25.0f;
+	GLfloat timeInTicks = ticksPerSecond * timeInSeconds;
+	GLfloat animationTime = fmod(timeInTicks, scene->mAnimations[0]->mDuration);
+
+	readNodeHeirarchy(animationTime, scene->mRootNode, identity);
+
+	transforms.resize(boneCount);
+	for (int i = 0; i < boneCount; i++)
+	{
+		transforms[i] = boneMatrices[i].finalWorldTransformation;
+	}
+}
+
+void Model::readNodeHeirarchy(const GLfloat& animationTime, const aiNode* pNode, const glm::mat4& parentTransform)
+{
+	std::string nodeName(pNode->mName.data);
+
+	const aiAnimation* pAnimation = scene->mAnimations[0];
+
+	glm::mat4 nodeTransformation(aiMatrix4x4ToGlm(pNode->mTransformation));
+
+	const aiNodeAnim* pNodeAnim = findNodeAnim(pAnimation, nodeName);
+
+	if (pNodeAnim)
+	{
+		glm::vec3 scaleVector = interpolateScale(animationTime, pNodeAnim);
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), scaleVector);
+
+		aiQuaternion rotationQuat = interpolateRotation(animationTime, pNodeAnim);
+		aiMatrix4x4 rotMat(rotationQuat.GetMatrix());
+		glm::mat4 rotation = glm::mat4(aiMatrix4x4ToGlm(rotMat));
+
+		glm::vec3 positionVector = interpolatePosition(animationTime, pNodeAnim);
+		glm::mat4 position = glm::translate(glm::mat4(1.0f), positionVector);
+
+		nodeTransformation = position * rotation * scale;
+	}
+
+	glm::mat4 globalTransformation = parentTransform * nodeTransformation;
+
+	if (boneMapping.find(nodeName) != boneMapping.end())
+	{
+		GLuint boneIndex = boneMapping[nodeName];
+		boneMatrices[boneIndex].finalWorldTransformation = globalInverseTransform * globalTransformation * boneMatrices[boneIndex].offset;
+	}
+
+	for (int i = 0; i < pNode->mNumChildren; i++)
+	{
+		readNodeHeirarchy(animationTime, pNode->mChildren[i], globalTransformation);
+	}
+}
+
+const aiNodeAnim* Model::findNodeAnim(const aiAnimation* pAnimation, const std::string& nodeName)
+{
+	for (int i = 0; i < pAnimation->mNumChannels; i++)
+	{
+		const aiNodeAnim* pNodeAnim = pAnimation->mChannels[i];
+		if (std::string(pNodeAnim->mNodeName.data) == nodeName)
+		{
+			return pNodeAnim;
+		}
+	}
+	return NULL;
+}
+
+glm::vec3 Model::interpolateScale(const GLfloat& pAnimationTime, const aiNodeAnim* pNodeAnim)
+{
+	if (pNodeAnim->mNumScalingKeys == 1) { return aiVector3DToGlm(pNodeAnim->mScalingKeys[0].mValue); }
+
+	GLuint scaleIndex = findScale(pAnimationTime, pNodeAnim);
+	GLuint nextScaleIndex = scaleIndex + 1;
+	GLfloat deltaTime = (GLfloat)(pNodeAnim->mScalingKeys[nextScaleIndex].mTime - pNodeAnim->mScalingKeys[scaleIndex].mTime);
+	GLfloat factor = (pAnimationTime - (GLfloat)pNodeAnim->mScalingKeys[scaleIndex].mTime) / deltaTime;
+	glm::vec3 start = aiVector3DToGlm(pNodeAnim->mScalingKeys[scaleIndex].mValue);
+	glm::vec3 end = aiVector3DToGlm(pNodeAnim->mScalingKeys[nextScaleIndex].mValue);
+	glm::vec3 delta = end - start;
+
+	return start + factor * delta;
+}
+
+aiQuaternion Model::interpolateRotation(const GLfloat& pAnimationTime, const aiNodeAnim* pNodeAnim)
+{
+	if (pNodeAnim->mNumRotationKeys == 1) { return pNodeAnim->mRotationKeys[0].mValue; }
+
+	GLuint rotationIndex = findRotation(pAnimationTime, pNodeAnim);
+	GLuint nextRotationIndex = rotationIndex + 1;
+	GLfloat deltaTime = (GLfloat)(pNodeAnim->mRotationKeys[nextRotationIndex].mTime - pNodeAnim->mRotationKeys[rotationIndex].mTime);
+	GLfloat factor = (pAnimationTime - (GLfloat)pNodeAnim->mRotationKeys[rotationIndex].mTime) / deltaTime;
+	aiQuaternion start = pNodeAnim->mRotationKeys[rotationIndex].mValue;
+	aiQuaternion end = pNodeAnim->mRotationKeys[nextRotationIndex].mValue;
+	
+	return nlerp(start.Normalize(), end.Normalize(), factor);
+}
+
+glm::vec3 Model::interpolatePosition(const GLfloat& pAnimationTime, const aiNodeAnim* pNodeAnim)
+{
+	if (pNodeAnim->mNumPositionKeys == 1) { return aiVector3DToGlm(pNodeAnim->mPositionKeys[0].mValue); }
+
+	GLuint positionIndex = findPosition(pAnimationTime, pNodeAnim);
+	GLuint nextPositionIndex = positionIndex + 1;
+	GLfloat deltaTime = (GLfloat)(pNodeAnim->mPositionKeys[nextPositionIndex].mTime - pNodeAnim->mPositionKeys[positionIndex].mTime);
+	GLfloat factor = (pAnimationTime - (GLfloat)pNodeAnim->mPositionKeys[positionIndex].mTime) / deltaTime;
+	glm::vec3 start = aiVector3DToGlm(pNodeAnim->mPositionKeys[positionIndex].mValue);
+	glm::vec3 end = aiVector3DToGlm(pNodeAnim->mPositionKeys[nextPositionIndex].mValue);
+	glm::vec3 delta = end - start;
+
+	return start + factor * delta;
+}
+
+GLuint Model::findScale(const GLfloat& pAnimationTime, const aiNodeAnim* pNodeAnim)
+{
+	for (int i = 0; i < pNodeAnim->mNumScalingKeys - 1; i++)
+	{
+		if (pAnimationTime < (GLfloat)pNodeAnim->mScalingKeys[i + 1].mTime) { return i; }
+	}
+	return 0;
+}
+
+GLuint Model::findRotation(const GLfloat& pAnimationTime, const aiNodeAnim* pNodeAnim)
+{
+	for (int i = 0; i < pNodeAnim->mNumRotationKeys - 1; i++)
+	{
+		if (pAnimationTime < (GLfloat)pNodeAnim->mRotationKeys[i + 1].mTime) { return i; }
+	}
+	return 0;
+}
+
+GLuint Model::findPosition(const GLfloat& pAnimationTime, const aiNodeAnim* pNodeAnim)
+{
+	for (int i = 0; i < pNodeAnim->mNumPositionKeys - 1; i++)
+	{
+		if (pAnimationTime < pNodeAnim->mPositionKeys[i + 1].mTime) { return i; }
+	}
+	return 0;
+}
+
 glm::mat3 Model::aiMatrix3x3ToGlm(const aiMatrix3x3& matrix)
 {
 	glm::mat3 result;
 
-	result[0][0] = matrix.a1; result[0][1] = matrix.b1; result[0][2] = matrix.c1;
-	result[1][0] = matrix.a2; result[1][1] = matrix.b2; result[1][2] = matrix.c2;
-	result[2][0] = matrix.a3; result[2][1] = matrix.b3; result[2][2] = matrix.c3;
+	result[0].x = matrix.a1; result[0].y = matrix.b1; result[0].z = matrix.c1;
+	result[1].x = matrix.a2; result[1].y = matrix.b2; result[1].z = matrix.c2;
+	result[2].x = matrix.a3; result[2].y = matrix.b3; result[2].z = matrix.c3;
 
 	return result;
 }
@@ -358,10 +509,43 @@ glm::mat4 Model::aiMatrix4x4ToGlm(const aiMatrix4x4& matrix)
 {
 	glm::mat4 result;
 
-	result[0][0] = matrix.a1; result[0][1] = matrix.b1; result[0][2] = matrix.c1; result[0][3] = matrix.d1;
-	result[1][0] = matrix.a2; result[1][1] = matrix.b2; result[1][2] = matrix.c2; result[1][3] = matrix.d2;
-	result[2][0] = matrix.a3; result[2][1] = matrix.b3; result[2][2] = matrix.c3; result[2][3] = matrix.d3;
-	result[3][0] = matrix.a4; result[3][1] = matrix.b4; result[3][2] = matrix.c4; result[3][3] = matrix.d4;
+	result[0].x = matrix.a1; result[0].y = matrix.b1; result[0].z = matrix.c1; result[0].w = matrix.d1;
+	result[1].x = matrix.a2; result[1].y = matrix.b2; result[1].z = matrix.c2; result[1].w = matrix.d2;
+	result[2].x = matrix.a3; result[2].y = matrix.b3; result[2].z = matrix.c3; result[2].w = matrix.d3;
+	result[3].x = matrix.a4; result[3].y = matrix.b4; result[3].z = matrix.c4; result[3].w = matrix.d4;
 
 	return result;
+}
+
+glm::vec3 Model::aiVector3DToGlm(const aiVector3D& vector)
+{
+	glm::vec3 result;
+
+	result.x = vector.x; result.y = vector.y; result.z = vector.z;
+
+	return result;
+}
+
+aiQuaternion Model::nlerp(const aiQuaternion& a, const aiQuaternion& b, const GLfloat& blend)
+{
+	aiQuaternion result;
+	GLfloat dotProduct = a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
+	GLfloat oneMinusBlend = 1.0f - blend;
+
+	if (dotProduct < 0.0f)
+	{
+		result.x = a.x * oneMinusBlend + blend * -b.x;
+		result.y = a.y * oneMinusBlend + blend * -b.y;
+		result.z = a.z * oneMinusBlend + blend * -b.z;
+		result.w = a.w * oneMinusBlend + blend * -b.w;
+	}
+	else
+	{
+		result.x = a.x * oneMinusBlend + blend * b.x;
+		result.y = a.y * oneMinusBlend + blend * b.y;
+		result.z = a.z * oneMinusBlend + blend * b.z;
+		result.w = a.w * oneMinusBlend + blend * b.w;
+	}
+
+	return result.Normalize();
 }

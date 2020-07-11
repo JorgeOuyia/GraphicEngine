@@ -22,3 +22,5 @@ Here I post some results of the execution of the project:
 ![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/master/GameEngine/Results/togami.PNG)
 
 ![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/master/GameEngine/Results/worm.PNG)
+
+![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/master/GameEngine/Results/animation.gif)
