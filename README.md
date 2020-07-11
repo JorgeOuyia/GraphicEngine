@@ -23,4 +23,4 @@ Here I post some results of the execution of the project:
 
 ![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/master/GameEngine/Results/worm.PNG)
 
-![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/master/GameEngine/Results/animation.gif)
+![Alt Text](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
