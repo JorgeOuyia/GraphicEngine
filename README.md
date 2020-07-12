@@ -1,6 +1,6 @@
 # Graphic Engine
 
-This project consists on a graphic engine project with OpenGL, Assimp, GLSL and C++. Models rendered are not mine, they are from https://free3d.com/es/ and https://www.models-resource.com/
+This project consists on a graphic engine project with OpenGL, Assimp, GLSL and C++. Models rendered are not mine, they are from https://free3d.com/es/ , https://www.models-resource.com/ and https://sketchfab.com/
 
 This project can be used by anyone who wants to use it for any purpose. If you want to use it, you can open the Visual Studio solution and it is configured for a x86 configuration. Just change the configuration to this if you have the x64 
 configuration active by default and it is done.
