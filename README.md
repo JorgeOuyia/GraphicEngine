@@ -17,6 +17,6 @@ This is the first version, and until now it lets you:
 
 ![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/v1.0/GameEngine/Results/spotLight.PNG)
 
-3.- It can load animation and render them on the screen. I let you here one example:
+3.- It can load skeletal animations via bones and render them on the screen. I let you here one example:
 
 ![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/v1.0/GameEngine/Results/animation.gif)
