@@ -6,14 +6,14 @@ This is the first version, and until now it lets you:
 
 1.- Load 3D models and render them on the screen. I let you here one example image
 
-![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/master/GameEngine/Results/aoi.PNG)
+![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/v1.0/GameEngine/Results/aoi.PNG)
 
 2.- It uses the Phong ilumination model to generato spot lights, point lights and the diffuse, ambient and specular component. I let here two examples
 
-![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/master/GameEngine/Results/multiplePointLights.PNG)
+![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/v1.0/GameEngine/Results/multiplePointLights.PNG)
 
-![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/master/GameEngine/Results/spotLight.PNG)
+![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/v1.0/GameEngine/Results/spotLight.PNG)
 
 3.- It can load animation and render them on the screen. I let here one example
 
-![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/master/GameEngine/Results/animation.gif)
+![Alt Text](https://raw.githubusercontent.com/JorgeURJC/GraphicEngine/v1.0/GameEngine/Results/animation.gif)
