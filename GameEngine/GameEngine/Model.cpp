@@ -50,6 +50,7 @@ void Model::render()
 
 Model::~Model()
 {
+	importer.FreeScene();
 	delete camera;
 	delete shader;
 	delete scene;
@@ -73,8 +74,6 @@ void Model::init()
 		* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.x), glm::vec3(1, 0, 0))
 		* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.y), glm::vec3(0, 1, 0))
 		* glm::rotate(glm::mat4(1.0f), glm::radians(rotation.z), glm::vec3(0, 0, 1));
-
-	Assimp::Importer importer;
 
 	scene = importer.ReadFile(objectLoc,
 		aiProcess_Triangulate |
@@ -298,12 +297,12 @@ void Model::loadTextures()
 			}
 			else
 			{
-				textures[i] = new Texture("../Textures/white.png");
+				textures[i] = new Texture("../Textures/SM2099_D4K-scale-4_00x.png");
 			}
 		}
 		else
 		{
-			textures[i] = new Texture("../Textures/white.png");
+			textures[i] = new Texture("../Textures/SM2099_D4K-scale-4_00x.png");
 		}
 	}
 }

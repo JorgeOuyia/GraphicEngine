@@ -63,6 +63,7 @@ public:
 
 	~Model();
 private:
+	Assimp::Importer importer;
 	const aiScene* scene;
 
 	std::string objectLoc, vertexLoc, fragmentLoc;
