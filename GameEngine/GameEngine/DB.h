@@ -1,8 +1,10 @@
 #ifndef DB_H
 #define DB_H
 
-#include "Model.h"
 #include "Camera.h"
+
+#include "StaticModel.h"
+#include "AnimatedModel.h"
 
 class DB
 {
@@ -27,7 +29,8 @@ private:
 	static void reshapeCallback(GLFWwindow* window, int width, int height);
 	static void mouseCallback(GLFWwindow* window, double xPos, double yPos);
 
-	void addModel(const std::string& fileLoc, const std::string& vertexLoc, const std::string& fragmentLoc, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation);
+	void addStaticModel(const std::string& fileLoc, const std::string& vertexLoc, const std::string& fragmentLoc, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation);
+	void addAnimatedModel(const std::string& fileLoc, const std::string& vertexLoc, const std::string& fragmentLoc, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation);
 };
 
 #endif // !DB_H

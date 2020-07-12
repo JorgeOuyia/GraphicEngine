@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimatedModel.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DB.cpp" />
     <ClCompile Include="main.cpp" />
@@ -158,16 +159,22 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="PhongLight.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="StaticModel.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TPModel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimatedModel.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DB.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="PhongLight.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="StaticModel.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TPModel.h" />
+    <ClInclude Include="Util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
