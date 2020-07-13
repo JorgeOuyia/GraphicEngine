@@ -7,8 +7,7 @@ DB::DB(int windowWidth, int windowHeight) : windowWidth(windowWidth), windowHeig
 
 void DB::run()
 {
-	addStaticModel("../Models/spiderman.obj", "../Shaders/vertex.vert", "../Shaders/fragment.frag", glm::vec3(0.0f, -5.0f, -10.0f), glm::vec3(5.0f, 5.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-	/*addAnimatedModel("../Models/cat.fbx", "../Shaders/animated.vert", "../Shaders/animated.frag", glm::vec3(0.0f, -5.0f, -10.0f), glm::vec3(0.3f, 0.3f, 0.3f), glm::vec3(0.0f, 90.0f, 0.0f));*/
+	addMainStaticPlayer("../Models/spiderman.obj", "../Shaders/vertex.vert", "../Shaders/fragment.frag", glm::vec3(0.0f, 0.0f, 20.0f), glm::vec3(4.0f, 4.0f, 4.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 	GLfloat lastTime = 0.0f;
 	while (!glfwWindowShouldClose(window))
 	{
@@ -96,7 +95,7 @@ void DB::initOpenGL()
 
 	glfwSetWindowUserPointer(window, this);
 
-	camera = new Camera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 5.0f, 0.5f, bufferWidth, bufferHeight);
+	camera = new TPCamera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 5.0f, 0.5f, bufferWidth, bufferHeight);
 }
 
 void DB::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -152,5 +151,21 @@ void DB::addStaticModel(const std::string &fileLoc, const std::string &vertexLoc
 void DB::addAnimatedModel(const std::string& fileLoc, const std::string& vertexLoc, const std::string& fragmentLoc, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation)
 {
 	Model* newModel = new AnimatedModel(fileLoc, vertexLoc, fragmentLoc, position, scale, rotation, camera);
+	models.push_back(newModel);
+}
+
+void DB::addMainAnimatedPlayer(const std::string& fileLoc, const std::string& vertexLoc, const std::string& fragmentLoc, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation)
+{
+	Model* newModel = new AnimatedModel(fileLoc, vertexLoc, fragmentLoc, position, scale, rotation, camera);
+	camera->setPlayer(newModel);
+	newModel->setCamera(camera);
+	models.push_back(newModel);
+}
+
+void DB::addMainStaticPlayer(const std::string& fileLoc, const std::string& vertexLoc, const std::string& fragmentLoc, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation)
+{
+	Model* newModel = new StaticModel(fileLoc, vertexLoc, fragmentLoc, position, scale, rotation, camera);
+	camera->setPlayer(newModel);
+	newModel->setCamera(camera);
 	models.push_back(newModel);
 }

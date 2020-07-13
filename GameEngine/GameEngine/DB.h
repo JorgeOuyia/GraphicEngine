@@ -1,8 +1,8 @@
 #ifndef DB_H
 #define DB_H
 
-#include "Camera.h"
-
+#include "FPCamera.h"
+#include "TPCamera.h"
 #include "StaticModel.h"
 #include "AnimatedModel.h"
 
@@ -19,7 +19,7 @@ private:
 	GLFWwindow* window;
 	std::vector<Model*> models;
 	int keys[1024];
-	Camera* camera;
+	TPCamera* camera;
 	bool mouseFirstMoved;
 	GLfloat lastX, lastY, xChange, yChange;
 
@@ -31,6 +31,8 @@ private:
 
 	void addStaticModel(const std::string& fileLoc, const std::string& vertexLoc, const std::string& fragmentLoc, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation);
 	void addAnimatedModel(const std::string& fileLoc, const std::string& vertexLoc, const std::string& fragmentLoc, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation);
+	void addMainAnimatedPlayer(const std::string& fileLoc, const std::string& vertexLoc, const std::string& fragmentLoc, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation);
+	void addMainStaticPlayer(const std::string& fileLoc, const std::string& vertexLoc, const std::string& fragmentLoc, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation);
 };
 
 #endif // !DB_H

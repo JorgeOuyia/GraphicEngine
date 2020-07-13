@@ -56,8 +56,8 @@ void Model::init()
 void Model::uploadGeneralUniforms()
 {
 	glUniformMatrix4fv(shader->getUniforms().modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(shader->getUniforms().viewLoc, 1, GL_FALSE, glm::value_ptr(camera->getViewMatrix()));
-	glUniformMatrix4fv(shader->getUniforms().projLoc, 1, GL_FALSE, glm::value_ptr(camera->getProjectionMatrix()));
+	glUniformMatrix4fv(shader->getUniforms().viewLoc, 1, GL_FALSE, glm::value_ptr(camera->calculateViewMatrix()));
+	glUniformMatrix4fv(shader->getUniforms().projLoc, 1, GL_FALSE, glm::value_ptr(camera->calculateProjectionMatrix()));
 	glUniform3fv(shader->getUniforms().eyePositionLoc, 1, glm::value_ptr(camera->getPosition()));
 	glUniform1i(shader->getUniforms().numPointLightsLoc, shader->getPointLightUniforms().size());
 }
@@ -95,7 +95,7 @@ void Model::uploadSpotLightUniforms()
 	glUniform1f(shader->getSpotLightUniforms().constantLoc, shader->getPhongLight()->getSpotLight().constant);
 	glUniform1f(shader->getSpotLightUniforms().linearLoc, shader->getPhongLight()->getSpotLight().linear);
 	glUniform1f(shader->getSpotLightUniforms().expLoc, shader->getPhongLight()->getSpotLight().exp);
-	glUniform3fv(shader->getSpotLightUniforms().directionLoc, 1, glm::value_ptr(camera->getDirection()));
+	glUniform3fv(shader->getSpotLightUniforms().directionLoc, 1, glm::value_ptr(camera->calculateDirection()));
 	glUniform1f(shader->getSpotLightUniforms().cutOffLoc, cosf(shader->getPhongLight()->getSpotLight().cutOff));
 }
 

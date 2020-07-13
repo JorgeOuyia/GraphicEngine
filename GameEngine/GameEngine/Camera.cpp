@@ -8,43 +8,6 @@ Camera::Camera(glm::vec3 position, glm::vec3 worldUp, GLfloat yaw, GLfloat pitch
 	update();
 }
 
-void Camera::keyControl(int* keys, const GLfloat &deltaTime)
-{
-	if (keys[GLFW_KEY_W])
-	{
-		position += front * movementSpeed * deltaTime;
-	}
-
-	if (keys[GLFW_KEY_S])
-	{
-		position -= front * movementSpeed * deltaTime;
-	}
-
-	if (keys[GLFW_KEY_A])
-	{
-		position -= right * movementSpeed * deltaTime;
-	}
-
-	if (keys[GLFW_KEY_D])
-	{
-		position += right * movementSpeed * deltaTime;
-	}
-}
-
-void Camera::mouseControl(GLfloat xChange, GLfloat yChange)
-{
-	xChange *= rotationSpeed;
-	yChange *= rotationSpeed;
-
-	yaw += xChange;
-	pitch += yChange;
-
-	if (pitch > 89.0f) pitch = 89.0f;
-	if (pitch < -89.0f) pitch = -89.0f;
-
-	update();
-}
-
 Camera::~Camera()
 {
 }

@@ -154,6 +154,7 @@
     <ClCompile Include="AnimatedModel.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DB.cpp" />
+    <ClCompile Include="FPCamera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -161,18 +162,21 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="StaticModel.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="TPCamera.cpp" />
     <ClCompile Include="TPModel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimatedModel.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="DB.h" />
+    <ClInclude Include="FPCamera.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="PhongLight.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="StaticModel.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="TPCamera.h" />
     <ClInclude Include="TPModel.h" />
     <ClInclude Include="Util.h" />
   </ItemGroup>
