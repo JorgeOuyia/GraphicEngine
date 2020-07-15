@@ -1,7 +1,7 @@
 #include "FPCamera.h"
 
-FPCamera::FPCamera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLfloat startPitch, GLfloat movementSpeed, GLfloat rotationSpeed, int bufferWidth, int bufferHeight)
-	: Camera(startPosition, startUp, startYaw, startPitch, movementSpeed, rotationSpeed, bufferWidth, bufferHeight)
+FPCamera::FPCamera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLfloat startPitch, GLfloat movementSpeed, GLfloat rotationSpeed)
+	: Camera(startPosition, startUp, startYaw, startPitch, movementSpeed, rotationSpeed)
 {
 
 }

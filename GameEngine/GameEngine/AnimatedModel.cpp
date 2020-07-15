@@ -1,7 +1,7 @@
 #include "AnimatedModel.h"
 
-AnimatedModel::AnimatedModel(std::string modelLoc, std::string vertexLoc, std::string fragmentLoc, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, Camera* camera)
-	: boneCount(0), Model(modelLoc, vertexLoc, fragmentLoc, position, scale, rotation, camera)
+AnimatedModel::AnimatedModel(std::string modelLoc, std::string vertexLoc, std::string fragmentLoc, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, bool isMainCharacter)
+	: boneCount(0), Model(modelLoc, vertexLoc, fragmentLoc, position, scale, rotation, isMainCharacter)
 {
 	loadNode(getScene()->mRootNode);
 }

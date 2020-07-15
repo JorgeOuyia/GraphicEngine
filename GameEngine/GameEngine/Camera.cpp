@@ -1,7 +1,7 @@
 #include "Camera.h"
 
-Camera::Camera(glm::vec3 position, glm::vec3 worldUp, GLfloat yaw, GLfloat pitch, GLfloat movementSpeed, GLfloat rotationSpeed, int bufferWidth, int bufferHeight)
-	: position(position), worldUp(worldUp), yaw(yaw), pitch(pitch), movementSpeed(movementSpeed), rotationSpeed(rotationSpeed), bufferWidth(bufferWidth), bufferHeight(bufferHeight)
+Camera::Camera(glm::vec3 position, glm::vec3 worldUp, GLfloat yaw, GLfloat pitch, GLfloat movementSpeed, GLfloat rotationSpeed)
+	: position(position), worldUp(worldUp), yaw(yaw), pitch(pitch), movementSpeed(movementSpeed), rotationSpeed(rotationSpeed)
 {
 	front = glm::vec3(0.0f, 0.0f, -1.0f);
 

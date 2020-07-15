@@ -9,7 +9,7 @@ class TPCamera : public Camera
 {
 public:
 	TPCamera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLfloat startPitch, GLfloat movementSpeed, GLfloat rotationSpeed,
-		int bufferWidth, int bufferHeight, Model* model = NULL);
+		Model* model = NULL);
 
 	// INHERITED FUNCTIONS
 	void keyControl(int* keys, const GLfloat& deltaTime);
@@ -22,7 +22,7 @@ public:
 
 	~TPCamera();
 private:
-	GLfloat distanceFromPlayer = 25.0f, horizontalAngle = 0.0f, verticalAngle = 0.0f;
+	GLfloat distanceFromPlayer = 15.0f, horizontalAngle = 0.0f, verticalAngle = 0.0f;
 	Model* player;
 };
 

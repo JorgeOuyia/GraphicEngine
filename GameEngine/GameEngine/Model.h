@@ -11,17 +11,21 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <reactphysics3d/reactphysics3d.h>
+
 #include <vector>
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
+
+using namespace reactphysics3d;
 
 class Model
 {
 public:
 	Model(std::string modelLoc, std::string vertexLoc, std::string fragmentLoc,
 		glm::vec3 position, glm::vec3 scale, glm::vec3 rotation,
-		Camera* camera);
+		bool isMainCharacter = false);
 
 	// VIRTUAL FUNCTIONS
 	virtual void update(int* keys, const GLfloat& deltaTime) = 0;
@@ -73,6 +77,12 @@ public:
 	inline glm::mat4 getGlobalInverseTransform() const { return globalInverseTransform; }
 	inline void setGlobalInverseTransform(const glm::mat4& globalInverseTransform) { this->globalInverseTransform = globalInverseTransform; }
 
+	inline bool getIsMainCharacter() const { return isMainCharacter; }
+	inline void setIsMainCharacter(const bool& isMainCharacter) { this->isMainCharacter = isMainCharacter; }
+
+	// UTIL FUNCTIONS
+	void calculateModel();
+
 	~Model();
 private:
 	Assimp::Importer importer;
@@ -90,6 +100,8 @@ private:
 
 	glm::mat4 globalInverseTransform;
 
+	bool isMainCharacter;
+
 	void init();
 
 	void uploadGeneralUniforms();
@@ -99,8 +111,6 @@ private:
 protected:
 	void loadTextures();
 	void loadGeneralModel(aiMesh* mesh, std::vector<GLfloat>& vertices, std::vector<unsigned int>& indices);
-
-	void calculateModel();
 
 	void uploadUniforms();
 

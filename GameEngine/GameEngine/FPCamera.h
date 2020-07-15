@@ -7,8 +7,7 @@
 class FPCamera : public Camera
 {
 public:
-	FPCamera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLfloat startPitch, GLfloat movementSpeed, GLfloat rotationSpeed,
-		int bufferWidth, int bufferHeight);
+	FPCamera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLfloat startPitch, GLfloat movementSpeed, GLfloat rotationSpeed);
 
 	// INHERITED FUNCTIONS
 	void keyControl(int* keys, const GLfloat& deltaTime);

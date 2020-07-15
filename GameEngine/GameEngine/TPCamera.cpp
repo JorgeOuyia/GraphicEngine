@@ -1,19 +1,19 @@
 #include "TPCamera.h"
 
-TPCamera::TPCamera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLfloat startPitch, GLfloat movementSpeed, GLfloat rotationSpeed, int bufferWidth, int bufferHeight,
+TPCamera::TPCamera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLfloat startPitch, GLfloat movementSpeed, GLfloat rotationSpeed,
 	Model* model)
-	: Camera(startPosition, startUp, startYaw, startPitch, movementSpeed, rotationSpeed, bufferWidth, bufferHeight), 
+	: Camera(startPosition, startUp, startYaw, startPitch, movementSpeed, rotationSpeed),
 	player(model)
 {
 }
 
 void TPCamera::keyControl(int* keys, const GLfloat& deltaTime)
 {
-	
+	// NO KEY CONTROL
 }
 
 void TPCamera::mouseControl(GLfloat xChange, GLfloat yChange)
- {
+{
 	xChange *= getRotationSpeed();
 	yChange *= getRotationSpeed();
 
@@ -36,7 +36,7 @@ void TPCamera::mouseControl(GLfloat xChange, GLfloat yChange)
 
 glm::mat4 TPCamera::calculateViewMatrix()
 {
-	return glm::lookAt(getPosition(), glm::vec3(player->getPosition().x, player->getPosition().y + 6.0f, player->getPosition().z), getUp());
+	return glm::lookAt(getPosition(), glm::vec3(player->getPosition().x, player->getPosition().y + 4.0f, player->getPosition().z), getUp());
 }
 
 TPCamera::~TPCamera()

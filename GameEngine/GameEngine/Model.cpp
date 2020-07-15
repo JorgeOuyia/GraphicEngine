@@ -1,9 +1,11 @@
 #include "Model.h"
 
-Model::Model(std::string modelLoc, std::string vertexLoc, std::string fragmentLoc, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, Camera* camera)
+Model::Model(std::string modelLoc, std::string vertexLoc, std::string fragmentLoc, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, bool isMainCharacter)
 	: modelLoc(modelLoc), vertexLoc(vertexLoc), fragmentLoc(fragmentLoc),
 	position(position), scale(scale), rotation(rotation),
-	camera(camera)
+	camera(camera),
+	isMainCharacter(isMainCharacter),
+	model(glm::mat4(1.0f))
 {
 	init();
 }
@@ -26,11 +28,7 @@ void Model::init()
 	shader = new Shader(vertexLoc, fragmentLoc,
 		DirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f), 0.4f, 0.1f, glm::vec3(0.0f, 0.0f, -1.0f)),
 		SpecularLight(1.0f, 250.0f),
-		SpotLight(glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, 1.0f, glm::vec3(0.0f, 0.0f, 0.0f), 1.0f, 0.0f, 0.0f, glm::vec3(0.0f, 0.0f, -1.0f), glm::radians(10.0f)));
-
-	shader->addPointLight(PointLight(glm::vec3(1.0f, 0.0f, 0.0f), 0.2f, 0.2f, glm::vec3(0.0f, 0.0f, -15.0f), 0.3f, 0.2f, 0.1f));
-	shader->addPointLight(PointLight(glm::vec3(0.0f, 1.0f, 0.0f), 0.2f, 0.2f, glm::vec3(10.0f, 0.0f, -15.0f), 0.3f, 0.2f, 0.1f));
-	shader->addPointLight(PointLight(glm::vec3(0.0f, 0.0f, 1.0f), 0.2f, 1.2f, glm::vec3(-10.0f, 0.0f, -15.0f), 0.8f, 0.2f, 0.1f));
+		SpotLight(glm::vec3(1.0f, 1.0f, 1.0f), 0.0f, 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), 0.0f, 0.0f, 0.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::radians(0.0f)));
 
 	calculateModel();
 

@@ -8,7 +8,7 @@ layout(location = 4) in vec3 tangent;
 layout(location = 5) in ivec4 boneId;
 layout(location = 6) in vec4 boneWeight;
 
-const int MAX_BONES = 100;
+const int MAX_BONES = 150;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -21,10 +21,14 @@ out vec3 fragmentNormal;
 
 void main()
 {
-	mat4 boneTransform = bones[boneId[0]] * boneWeight[0];
-	boneTransform += bones[boneId[1]] * boneWeight[1];
-	boneTransform += bones[boneId[2]] * boneWeight[2];
-	boneTransform += bones[boneId[3]] * boneWeight[3];
+	mat4 boneTransform = mat4(1.0f);
+	if (bones[boneId[0]] != mat4(1.0f))
+	{
+		boneTransform += bones[boneId[0]] * boneWeight[0];
+		boneTransform += bones[boneId[1]] * boneWeight[1];
+		boneTransform += bones[boneId[2]] * boneWeight[2];
+		boneTransform += bones[boneId[3]] * boneWeight[3];
+	}
 	
 	vec4 bonePos = boneTransform * vec4(pos, 1.0f);
 

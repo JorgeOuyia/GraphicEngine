@@ -1,14 +1,39 @@
 #include "StaticModel.h"
 
-StaticModel::StaticModel(std::string modelLoc, std::string vertexLoc, std::string fragmentLoc, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, Camera* camera)
-	: Model(modelLoc, vertexLoc, fragmentLoc, position, scale, rotation, camera)
+StaticModel::StaticModel(std::string modelLoc, std::string vertexLoc, std::string fragmentLoc, glm::vec3 position, glm::vec3 scale, glm::vec3 rotation, bool isMainCharacter)
+	: Model(modelLoc, vertexLoc, fragmentLoc, position, scale, rotation, isMainCharacter)
 {
 	loadNode(getScene()->mRootNode);
 }
 
 void StaticModel::update(int* keys, const GLfloat& deltaTime)
 {
+	glm::vec3 position = getPosition();
+	glm::vec3 forwardVector = position - getCamera()->getPosition();
+	forwardVector.y = 0;
+	forwardVector = glm::normalize(forwardVector);
 
+	if (keys[GLFW_KEY_W])
+	{
+		position += forwardVector * getCamera()->getMovementSpeed() * deltaTime;
+	}
+	if (keys[GLFW_KEY_S])
+	{
+		position -= forwardVector * getCamera()->getMovementSpeed() * deltaTime;
+	}
+	if (keys[GLFW_KEY_A])
+	{
+		glm::vec3 leftVector = glm::cross(getCamera()->getUp(), forwardVector);
+		position += leftVector * getCamera()->getMovementSpeed() * deltaTime;
+	}
+	if (keys[GLFW_KEY_D])
+	{
+		glm::vec3 rightVector = glm::cross(forwardVector, getCamera()->getUp());
+		position += rightVector * getCamera()->getMovementSpeed() * deltaTime;
+	}
+
+	setPosition(position);
+	calculateModel();
 }
 
 void StaticModel::render()

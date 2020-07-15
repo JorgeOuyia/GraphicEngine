@@ -58,10 +58,10 @@ class AnimatedModel : public Model
 public:
 	AnimatedModel(std::string modelLoc, std::string vertexLoc, std::string fragmentLoc,
 		glm::vec3 position, glm::vec3 scale, glm::vec3 rotation,
-		Camera* camera);
+		bool isMainCharacter = false);
 
 	// VIRTUAL FUNCTIONS
-	virtual void update(int* keys, const GLfloat& deltaTime) { }
+	virtual void update(int* keys, const GLfloat& deltaTime) {}
 	virtual void render();
 
 	// GETTERS AND SETTERS

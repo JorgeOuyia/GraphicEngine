@@ -9,7 +9,7 @@ class StaticModel : public Model
 public:
 	StaticModel(std::string modelLoc, std::string vertexLoc, std::string fragmentLoc,
 		glm::vec3 position, glm::vec3 scale, glm::vec3 rotation,
-		Camera* camera);
+		bool isMainCharacter = false);
 
 	void update(int* keys, const GLfloat& deltaTime);
 	void render();

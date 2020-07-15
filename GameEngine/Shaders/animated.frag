@@ -140,6 +140,6 @@ vec4 calcPointLights(PointLight pointLights[MAX_POINT_LIGHTS])
 
 void main()
 {
-	colour = texture(tex, fragmentTex) * (calcPhongLight(directionalLight, specularLight) + calcPointLights(pointLights) + calcSpotLight(spotLight));
-	//colour = vec4(fragmentNormal, 1.0f);
+	//colour = texture(tex, fragmentTex) * (calcPhongLight(directionalLight, specularLight) + calcPointLights(pointLights) + calcSpotLight(spotLight));
+	colour = vec4(fragmentNormal, 1.0f);
 }

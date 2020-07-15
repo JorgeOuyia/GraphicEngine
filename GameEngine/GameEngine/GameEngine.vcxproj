@@ -164,6 +164,7 @@
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="TPCamera.cpp" />
     <ClCompile Include="TPModel.cpp" />
+    <ClCompile Include="World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimatedModel.h" />
@@ -179,6 +180,7 @@
     <ClInclude Include="TPCamera.h" />
     <ClInclude Include="TPModel.h" />
     <ClInclude Include="Util.h" />
+    <ClInclude Include="World.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -12,8 +12,7 @@
 class Camera
 {
 public:
-	Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLfloat startPitch, GLfloat movementSpeed, GLfloat rotationSpeed,
-		int bufferWidth, int bufferHeight);
+	Camera(glm::vec3 startPosition, glm::vec3 startUp, GLfloat startYaw, GLfloat startPitch, GLfloat movementSpeed, GLfloat rotationSpeed);
 
 	// VIRTUAL FUNCTIONS
 	virtual void keyControl(int* keys, const GLfloat& deltaTime) = 0;
