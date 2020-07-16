@@ -1,71 +1,94 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#define BONES_PER_VERTEX 4
-
 #include "Mesh.h"
 #include "Shader.h"
 #include "Camera.h"
 #include "Texture.h"
+#include "Util.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
+#include <reactphysics3d/reactphysics3d.h>
 
 #include <vector>
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
 
-// Each vertex have 4 bones associated with his respective weights
-struct VertexBoneData
-{
-	GLuint ids[BONES_PER_VERTEX];
-	GLfloat weights[BONES_PER_VERTEX];
-
-	VertexBoneData()
-	{
-		for (int i = 0; i < BONES_PER_VERTEX; i++)
-		{
-			ids[i] = 0u;
-			weights[i] = 0.0f;
-		}
-	}
-
-	void addData(const GLuint& id, const GLfloat& weight)
-	{
-		for (int i = 0; i < BONES_PER_VERTEX; i++)
-		{
-			if (weights[i] == 0.0f)
-			{
-				ids[i] = id;
-				weights[i] = weight;
-				return;
-			}
-		}
-	}
-};
-
-struct BoneMatrix
-{
-	glm::mat4 offset;
-	glm::mat4 finalWorldTransformation;
-};
+using namespace reactphysics3d;
 
 class Model
 {
 public:
-	Model(std::string objectLoc, std::string vertexLoc, std::string fragmentLoc,
+	Model(std::string modelLoc, std::string vertexLoc, std::string fragmentLoc,
 		glm::vec3 position, glm::vec3 scale, glm::vec3 rotation,
-		Camera* camera);
+		bool isMainCharacter = false);
 
-	void render();
+	// VIRTUAL FUNCTIONS
+	virtual void update(int* keys, const GLfloat& deltaTime) = 0;
+	virtual void render() = 0;
+
+	// GETTERS AND SETTERS
+	inline Assimp::Importer getImporter() const { return importer; }
+	inline void setImporter(const Assimp::Importer& importer) { this->importer = importer; }
+
+	inline const aiScene* getScene() const { return scene; }
+	inline void setScene(const aiScene* scene) { this->scene = scene; }
+
+	inline std::string getModelLoc() const { return modelLoc; }
+	inline void setModelLoc(const std::string& modelLoc) { this->modelLoc = modelLoc; }
+
+	inline std::string getVertexLoc() const { return vertexLoc; }
+	inline void setVertexLoc(const std::string& vertexLoc) { this->vertexLoc = vertexLoc; }
+
+	inline std::string getFragmentLoc() const { return fragmentLoc; }
+	inline void setFragmentLoc(const std::string& fragmentLoc) { this->fragmentLoc = fragmentLoc; }
+
+	inline Shader* getShader() const { return shader; }
+	inline void setShader(Shader* shader) { this->shader = shader; }
+
+	inline glm::mat4 getModel() const { return model; }
+	inline void setModel(const glm::mat4& model) { this->model = model; }
+
+	inline glm::vec3 getPosition() const { return this->position; }
+	inline void setPosition(const glm::vec3& position) { this->position = position; }
+
+	inline glm::vec3 getScale() const { return scale; }
+	inline void setScale(const glm::vec3& scale) { this->scale = scale; }
+
+	inline glm::vec3 getRotation() const { return rotation; }
+	inline void setRotation(const glm::vec3& rotation) { this->rotation = rotation; }
+
+	inline Camera* getCamera() const { return camera; }
+	inline void setCamera(Camera* camera) { this->camera = camera; }
+
+	inline std::vector<Mesh*> getMeshes() const { return meshes; }
+	inline void setMeshes(const std::vector<Mesh*>& meshes) { this->meshes = meshes; }
+
+	inline std::vector<Texture*> getTextures() const { return textures; }
+	inline void setTextures(const std::vector<Texture*>& textures) { this->textures = textures; }
+
+	inline std::vector<unsigned int> getMeshToTex() const { return meshToTex; }
+	inline void setMeshToTex(const std::vector<unsigned int>& meshToTex) { this->meshToTex = meshToTex; }
+
+	inline glm::mat4 getGlobalInverseTransform() const { return globalInverseTransform; }
+	inline void setGlobalInverseTransform(const glm::mat4& globalInverseTransform) { this->globalInverseTransform = globalInverseTransform; }
+
+	inline bool getIsMainCharacter() const { return isMainCharacter; }
+	inline void setIsMainCharacter(const bool& isMainCharacter) { this->isMainCharacter = isMainCharacter; }
+
+	// UTIL FUNCTIONS
+	void calculateModel();
 
 	~Model();
 private:
+	Assimp::Importer importer;
 	const aiScene* scene;
 
-	std::string objectLoc, vertexLoc, fragmentLoc;
+	std::string modelLoc, vertexLoc, fragmentLoc;
 	Shader* shader;
 	glm::mat4 model;
 	glm::vec3 position, scale, rotation;
@@ -75,42 +98,36 @@ private:
 	std::vector<Texture*> textures;
 	std::vector<unsigned int> meshToTex;
 
-	std::unordered_map<std::string, GLuint> boneMapping;
-	std::vector<BoneMatrix> boneMatrices;
 	glm::mat4 globalInverseTransform;
-	GLuint boneCount;
+
+	bool isMainCharacter;
 
 	void init();
 
-	void loadNode(aiNode* node);
-	void loadModel(aiMesh* mesh);
-	void loadTextures();
-
-	void uploadUniforms();
 	void uploadGeneralUniforms();
 	void uploadGeneralLightUniforms();
 	void uploadPointLightsUniforms();
 	void uploadSpotLightUniforms();
-	void uploadSkeletalUniforms(const std::vector<glm::mat4>& transforms);
+protected:
+	void loadTextures();
+	void loadGeneralModel(aiMesh* mesh, std::vector<GLfloat>& vertices, std::vector<unsigned int>& indices);
 
-	void boneTransform(const GLfloat& timeInSeconds, std::vector<glm::mat4>& transforms);
-	void readNodeHeirarchy(const GLfloat& animationTime, const aiNode* pNode, const glm::mat4& parentTransform);
+	void uploadUniforms();
 
-	const aiNodeAnim* findNodeAnim(const aiAnimation* pAnimation, const std::string& nodeName);
+	inline void addMesh(Mesh* mesh) { meshes.push_back(mesh); }
+	inline void addMeshToTex(const unsigned int& materialIndex) { meshToTex.push_back(materialIndex); }
 
-	glm::vec3 interpolateScale(const GLfloat& pAnimationTime, const aiNodeAnim* pNodeAnim);
-	aiQuaternion interpolateRotation(const GLfloat& pAnimationTime, const aiNodeAnim* pNodeAnim);
-	glm::vec3 interpolatePosition(const GLfloat& pAnimationTime, const aiNodeAnim* pNodeAnim);
+	inline void activateShader() const { shader->use(); }
+	inline void deactivateShader() const { shader->unuse(); }
 
-	GLuint findScale(const GLfloat& pAnimationTime, const aiNodeAnim* pNodeAnim);
-	GLuint findRotation(const GLfloat& pAnimationTime, const aiNodeAnim* pNodeAnim);
-	GLuint findPosition(const GLfloat& pAnimationTime, const aiNodeAnim* pNodeAnim);
+	inline unsigned int getTextureIndex(const unsigned int& index) const { return meshToTex[index]; }
+	inline Texture* getTexture(const unsigned int& index) const { return textures[index]; }
 
-	glm::mat3 aiMatrix3x3ToGlm(const aiMatrix3x3& matrix);
-	glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4& matrix);
-	glm::vec3 aiVector3DToGlm(const aiVector3D& vector);
+	inline void activateTexture(const unsigned int& index, const unsigned int& textureUnit) const { textures[index]->use(textureUnit); }
+	inline void deactivateTexture(const unsigned int& index) const { textures[index]->unuse(); }
 
-	aiQuaternion nlerp(const aiQuaternion& a, const aiQuaternion& b, const GLfloat& blend);
+	virtual void loadModel(aiMesh* mesh) = 0;
+	virtual void loadNode(aiNode* node) = 0;
 };
 
 #endif

@@ -1,7 +1,7 @@
 #include "Mesh.h"
 
 Mesh::Mesh(GLfloat* vertex, unsigned int* indices, unsigned int vertexCount, unsigned int indexCount)
-	: vao(0), ibo(0), vertex(vertex), indices(indices), vertexCount(vertexCount), indexCount(indexCount)
+	: vao(0), ibo(0), vertex(vertex), indices(indices), bonesIds(NULL), bonesWeights(NULL), vertexCount(vertexCount), indexCount(indexCount)
 {
 	bbo[0] = 0;
 	bbo[1] = 0;
@@ -90,25 +90,28 @@ void Mesh::init()
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	// Bone ids
-	glGenBuffers(1, &bbo[0]);
-	glBindBuffer(GL_ARRAY_BUFFER, bbo[0]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLuint) * boneCount, bonesIds, GL_STATIC_DRAW);
+	if (bonesIds != NULL)
+	{
+		// Bone ids
+		glGenBuffers(1, &bbo[0]);
+		glBindBuffer(GL_ARRAY_BUFFER, bbo[0]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLuint) * boneCount, bonesIds, GL_STATIC_DRAW);
 
-	glVertexAttribIPointer(5, 4, GL_INT, 0, 0);
-	glEnableVertexAttribArray(5);
+		glVertexAttribIPointer(5, 4, GL_INT, 0, 0);
+		glEnableVertexAttribArray(5);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-	// Bone weights
-	glGenBuffers(1, &bbo[1]);
-	glBindBuffer(GL_ARRAY_BUFFER, bbo[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * boneCount, bonesWeights, GL_STATIC_DRAW);
+		// Bone weights
+		glGenBuffers(1, &bbo[1]);
+		glBindBuffer(GL_ARRAY_BUFFER, bbo[1]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * boneCount, bonesWeights, GL_STATIC_DRAW);
 
-	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(6);
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
 
 	glBindVertexArray(0);
 }

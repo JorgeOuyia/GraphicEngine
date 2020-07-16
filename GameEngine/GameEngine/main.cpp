@@ -2,7 +2,7 @@
 
 #include "DB.h"
 
-int main()
+int main(int argc, char** argv)
 {
 	DB* db = new DB(1024, 768);
 

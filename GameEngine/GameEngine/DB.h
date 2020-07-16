@@ -1,8 +1,9 @@
 #ifndef DB_H
 #define DB_H
 
-#include "Model.h"
-#include "Camera.h"
+#include "World.h"
+
+#include <queue>
 
 class DB
 {
@@ -15,19 +16,17 @@ public:
 private:
 	int windowWidth, windowHeight, bufferWidth, bufferHeight;
 	GLFWwindow* window;
-	std::vector<Model*> models;
 	int keys[1024];
-	Camera* camera;
 	bool mouseFirstMoved;
 	GLfloat lastX, lastY, xChange, yChange;
+
+	std::queue<World*> levels;
 
 	void initOpenGL();
 
 	static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 	static void reshapeCallback(GLFWwindow* window, int width, int height);
 	static void mouseCallback(GLFWwindow* window, double xPos, double yPos);
-
-	void addModel(const std::string& fileLoc, const std::string& vertexLoc, const std::string& fragmentLoc, const glm::vec3& position, const glm::vec3& scale, const glm::vec3& rotation);
 };
 
 #endif // !DB_H
