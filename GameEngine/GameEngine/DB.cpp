@@ -7,8 +7,9 @@ DB::DB(int windowWidth, int windowHeight) : windowWidth(windowWidth), windowHeig
 
 void DB::run()
 {
-	addModel("../Models/goku.obj", "../Shaders/vertex.vert", "../Shaders/fragment.frag", glm::vec3(0.0f, -5.0f, -10.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.0f, 0.0f, 0.0f));
-	/*addModel("../Models/goku.obj", "../Shaders/vertex.vert", "../Shaders/fragment.frag", glm::vec3(1.0f, -5.0f, -10.0f), glm::vec3(0.1f, 0.1f, 0.1f));*/
+	Model* mainPlayer = new StaticModel("../Models/spiderman.obj", STATICVERTEXSHADER, STATICFRAGMENTSHADER, glm::vec3(0.0f, 3.0f, -10.0f), glm::vec3(4.0f, 4.0f, 4.0f), glm::vec3(0.0f, 180.0f, 0.0f));
+	World* world = new World(mainPlayer);
+	levels.push(world);
 	GLfloat lastTime = 0.0f;
 	while (!glfwWindowShouldClose(window))
 	{
@@ -18,17 +19,17 @@ void DB::run()
 
 		glfwPollEvents();
 
-		camera->keyControl(keys, deltaTime);
-		camera->mouseControl(xChange, yChange);
-		xChange = yChange = 0.0f;
-
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		for (Model* model : models)
-		{
-			model->render();
-		}
+		World* world = levels.front();
+		world->getCamera()->setBufferWidth(bufferWidth);
+		world->getCamera()->setBufferHeight(bufferHeight);
+		world->cameraControl(keys, deltaTime, xChange, yChange);
+		world->update(keys, deltaTime);
+		world->render();
+
+		xChange = yChange = 0.0f;
 
 		glfwSwapBuffers(window);
 	}
@@ -36,7 +37,7 @@ void DB::run()
 
 DB::~DB()
 {
-	models.clear();
+	while (!levels.empty()) levels.pop();
 	if (window != NULL)
 	{
 		glfwDestroyWindow(window);
@@ -94,8 +95,6 @@ void DB::initOpenGL()
 	glViewport(0, 0, bufferWidth, bufferHeight);
 
 	glfwSetWindowUserPointer(window, this);
-
-	camera = new Camera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 5.0f, 0.5f, bufferWidth, bufferHeight);
 }
 
 void DB::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -140,10 +139,4 @@ void DB::mouseCallback(GLFWwindow* window, double xPos, double yPos)
 
 	theDB->lastX = xPos;
 	theDB->lastY = yPos;
-}
-
-void DB::addModel(const std::string &fileLoc, const std::string &vertexLoc, const std::string &fragmentLoc, const glm::vec3 &position, const glm::vec3 &scale, const glm::vec3& rotation)
-{
-	Model* newModel = new Model(fileLoc, vertexLoc, fragmentLoc, position, scale, rotation, camera);
-	models.push_back(newModel);
 }
